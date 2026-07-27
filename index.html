@@ -501,9 +501,10 @@
         <table class="summary-table">
           <thead>
             <tr>
-              <th>Description</th>
-              <th>Amount (₱)</th>
-              <th>Percentage</th>
+              <th>DESCRIPTON</th>
+              <th>AMOUNT</th>
+              <th>PERCENTAGE</th>
+              <th>DISCREPENCY</th>
             </tr>
           </thead>
           <tbody>
@@ -511,36 +512,43 @@
               <td><strong>TOTAL GROSS SALES</strong></td>
               <td><span id="sumGrossSales">₱0.00</span></td>
               <td>100%</td>
+              <td><input type="number" step="0.01" id="inputDiscrepancy" value="0" oninput="saveInputsOnly()" placeholder="₱0.00"></td>
             </tr>
             <tr>
-              <td>TikTok Fees</td>
+              <td>TIKTOK FEES</td>
               <td><input type="number" id="inputTiktokFees" value="0" oninput="calculateSummary()"></td>
               <td><span id="pctTiktokFees">0%</span></td>
+              <td></td>
             </tr>
             <tr>
-              <td>TikTok Adjustment</td>
+              <td>TIKTOK ADJUSTMENT</td>
               <td><input type="number" id="inputTiktokAdj" value="0" oninput="calculateSummary()"></td>
               <td><span id="pctTiktokAdj">0%</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>ADS EXPENSE</td>
+              <td><input type="number" id="inputAdsExpense" value="0" oninput="calculateSummary()"></td>
+              <td><span id="pctAdsExpense">0%</span></td>
+              <td></td>
             </tr>
             <tr style="border-top: 1px solid var(--border-color); font-weight: bold;">
               <td>TOTAL DEDUCTIONS</td>
               <td><span id="sumTotalDeductions" style="color: var(--accent-red);">₱0.00</span></td>
               <td><span id="pctTotalDeductions">0%</span></td>
+              <td></td>
             </tr>
             <tr>
-              <td>Ads Expense</td>
-              <td><input type="number" id="inputAdsExpense" value="0" oninput="calculateSummary()"></td>
-              <td><span id="pctAdsExpense">0%</span></td>
-            </tr>
-            <tr>
-              <td>Live Seller Payroll</td>
+              <td>LIVE SELLER</td>
               <td><input type="number" id="inputLiveSeller" value="0" oninput="calculateSummary()"></td>
               <td><span id="pctLiveSeller">0%</span></td>
+              <td></td>
             </tr>
             <tr style="border-top: 1px dotted var(--border-color); font-weight: bold;">
               <td style="color: var(--accent-green);">REMAINING FOR PRODUCTION</td>
               <td><span id="sumProduction" style="color: var(--accent-green);">₱0.00</span></td>
               <td><span id="pctProduction">0%</span></td>
+              <td></td>
             </tr>
           </tbody>
         </table>
@@ -548,23 +556,23 @@
         <!-- Metrics Indicator Bar -->
         <div class="metrics-bar">
           <div class="metric-item">
-            <label>Remaining Orders</label>
+            <label>TOTAL ORDERS VOLUME</label>
             <span id="metricTotalOrders" style="color: var(--text-main);">0</span>
           </div>
           <div class="metric-item">
-            <label>Sale Per Parcel</label>
+            <label>SALE PER PARCELS</label>
             <span id="metricSalePerParcel" style="color: var(--accent-blue);">₱0.00</span>
           </div>
           <div class="metric-item">
-            <label>TikTok Per Order</label>
+            <label>TIKTOK PER ORDER</label>
             <span id="metricTiktokPerOrder" style="color: var(--accent-orange);">₱0.00</span>
           </div>
           <div class="metric-item">
-            <label>Live Seller</label>
+            <label>LIVE SELLER</label>
             <span id="metricLiveSellerPerOrder" style="color: var(--accent-purple);">₱0.00</span>
           </div>
           <div class="metric-item">
-            <label>Production</label>
+            <label>PRODUCTION</label>
             <span id="metricProductionPerOrder" style="color: var(--accent-green);">₱0.00</span>
           </div>
         </div>
@@ -655,6 +663,7 @@
         }
         dataStore[year][monthIdx] = {
           logs: logs,
+          discrepancy: 0,
           tiktokFees: 0,
           tiktokAdj: 0,
           adsExpense: 0,
@@ -703,15 +712,23 @@
 
     function loadSummaryInputs() {
       const monthData = dataStore[currentYear][currentMonthIndex];
+      document.getElementById('inputDiscrepancy').value = monthData.discrepancy || 0;
       document.getElementById('inputTiktokFees').value = monthData.tiktokFees || 0;
       document.getElementById('inputTiktokAdj').value = monthData.tiktokAdj || 0;
       document.getElementById('inputAdsExpense').value = monthData.adsExpense || 0;
       document.getElementById('inputLiveSeller').value = monthData.liveSeller || 0;
     }
 
+    function saveInputsOnly() {
+      const monthData = dataStore[currentYear][currentMonthIndex];
+      monthData.discrepancy = parseFloat(document.getElementById('inputDiscrepancy').value) || 0;
+      autoSaveToLocalStorage();
+    }
+
     function calculateSummary() {
       const monthData = dataStore[currentYear][currentMonthIndex];
       
+      monthData.discrepancy = parseFloat(document.getElementById('inputDiscrepancy').value) || 0;
       monthData.tiktokFees = parseFloat(document.getElementById('inputTiktokFees').value) || 0;
       monthData.tiktokAdj = parseFloat(document.getElementById('inputTiktokAdj').value) || 0;
       monthData.adsExpense = parseFloat(document.getElementById('inputAdsExpense').value) || 0;
@@ -732,15 +749,15 @@
       });
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
-      
+
       // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment
       const totalDeductions = monthData.tiktokFees + monthData.tiktokAdj;
       
       // REMAINING FOR PRODUCTION = TOTAL GROSS SALES - Total Deductions - Live Seller
-      const remainingProduction = sumRemainingIncome - totalDeductions - monthData.liveSeller;
+      const remainingProduction = sumDailyGrossIncome - totalDeductions - monthData.liveSeller;
 
       const fmtCurrency = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const fmtPct = num => (sumRemainingIncome > 0 ? ((num / sumRemainingIncome) * 100).toFixed(2) : '0.00') + '%';
+      const fmtPct = num => (sumDailyGrossIncome > 0 ? ((num / sumDailyGrossIncome) * 100).toFixed(2) : '0.00') + '%';
 
       // KPI Top Cards
       document.getElementById('kpiGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
@@ -750,14 +767,14 @@
       document.getElementById('kpiReturnedVolume').innerText = returnedVolume.toLocaleString();
 
       // Breakdown Table
-      document.getElementById('sumGrossSales').innerText = fmtCurrency(sumRemainingIncome);
+      document.getElementById('sumGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
       document.getElementById('pctTiktokFees').innerText = fmtPct(monthData.tiktokFees);
       document.getElementById('pctTiktokAdj').innerText = fmtPct(monthData.tiktokAdj);
+      document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
       
       document.getElementById('sumTotalDeductions').innerText = fmtCurrency(totalDeductions);
       document.getElementById('pctTotalDeductions').innerText = fmtPct(totalDeductions);
 
-      document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
       document.getElementById('pctLiveSeller').innerText = fmtPct(monthData.liveSeller);
       
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
@@ -766,7 +783,7 @@
       // Financial Breakdown Metrics Bar
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
-      document.getElementById('metricSalePerParcel').innerText = fmtCurrency(sumRemainingIncome / safeVolume);
+      document.getElementById('metricSalePerParcel').innerText = fmtCurrency(sumDailyGrossIncome / safeVolume);
       document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(totalDeductions / safeVolume);
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(monthData.liveSeller / safeVolume);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(remainingProduction / safeVolume);
