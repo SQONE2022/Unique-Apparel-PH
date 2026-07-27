@@ -235,6 +235,7 @@
 
     input[type="text"]:focus, input[type="number"]:focus {
       border-color: var(--accent-blue);
+      background: #1c2128;
     }
 
     /* Deductions & Summary Breakdown */
@@ -516,7 +517,8 @@
               <td>
                 <input type="text" id="inputDiscrepancy" value="₱0.00" 
                   onfocus="unformatInput(this)" 
-                  onblur="formatInputCurrency(this, 'discrepancy')">
+                  onblur="formatInputCurrency(this, 'discrepancy')"
+                  onkeydown="handleKeyNavigation(event, this)">
               </td>
             </tr>
             <tr>
@@ -524,7 +526,8 @@
               <td>
                 <input type="text" id="inputTiktokFees" value="₱0.00" 
                   onfocus="unformatInput(this)" 
-                  onblur="formatInputCurrency(this, 'tiktokFees')">
+                  onblur="formatInputCurrency(this, 'tiktokFees')"
+                  onkeydown="handleKeyNavigation(event, this)">
               </td>
               <td><span id="pctTiktokFees">0%</span></td>
               <td></td>
@@ -534,7 +537,8 @@
               <td>
                 <input type="text" id="inputTiktokAdj" value="₱0.00" 
                   onfocus="unformatInput(this)" 
-                  onblur="formatInputCurrency(this, 'tiktokAdj')">
+                  onblur="formatInputCurrency(this, 'tiktokAdj')"
+                  onkeydown="handleKeyNavigation(event, this)">
               </td>
               <td><span id="pctTiktokAdj">0%</span></td>
               <td></td>
@@ -544,7 +548,8 @@
               <td>
                 <input type="text" id="inputAdsExpense" value="₱0.00" 
                   onfocus="unformatInput(this)" 
-                  onblur="formatInputCurrency(this, 'adsExpense')">
+                  onblur="formatInputCurrency(this, 'adsExpense')"
+                  onkeydown="handleKeyNavigation(event, this)">
               </td>
               <td><span id="pctAdsExpense">0%</span></td>
               <td></td>
@@ -560,7 +565,8 @@
               <td>
                 <input type="text" id="inputLiveSeller" value="₱0.00" 
                   onfocus="unformatInput(this)" 
-                  onblur="formatInputCurrency(this, 'liveSeller')">
+                  onblur="formatInputCurrency(this, 'liveSeller')"
+                  onkeydown="handleKeyNavigation(event, this)">
               </td>
               <td><span id="pctLiveSeller">0%</span></td>
               <td></td>
@@ -619,7 +625,6 @@
   </div>
 
   <script>
-    // Register ChartDatalabels plugin
     Chart.register(ChartDataLabels);
 
     const months = [
@@ -634,7 +639,7 @@
 
     window.onload = function() {
       loadFromLocalStorage();
-      initChart(); // Initialize chart first
+      initChart();
       renderMonthNav();
       switchMonth(0);
     };
@@ -662,6 +667,29 @@
       const monthData = dataStore[currentYear][currentMonthIndex];
       monthData[fieldName] = rawVal;
       calculateSummary();
+    }
+
+    // TAB & ENTER NAVIGATION HANDLER FOR INPUTS
+    function handleKeyNavigation(event, currentInput) {
+      if (event.key === 'Tab' || event.key === 'Enter') {
+        currentInput.blur(); // Triggers blur/formatting & calculation instantly
+        
+        // Find next input in DOM order
+        const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
+        const currentIndex = inputs.indexOf(currentInput);
+        
+        if (event.shiftKey) { // Shift + Tab -> Move backwards
+          if (currentIndex > 0) {
+            event.preventDefault();
+            inputs[currentIndex - 1].focus();
+          }
+        } else { // Tab or Enter -> Move forwards
+          if (currentIndex < inputs.length - 1) {
+            event.preventDefault();
+            inputs[currentIndex + 1].focus();
+          }
+        }
+      }
     }
 
     function renderMonthNav() {
@@ -734,19 +762,27 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${log.date}</td>
-          <td><input type="number" value="${log.totalOrders}" onchange="updateLog(${i}, 'totalOrders', this.value)"></td>
-          <td><input type="number" value="${log.cancelled}" onchange="updateLog(${i}, 'cancelled', this.value)"></td>
-          <td><input type="number" value="${log.returned}" onchange="updateLog(${i}, 'returned', this.value)"></td>
+          <td><input type="number" value="${log.totalOrders}" 
+            onchange="updateLog(${i}, 'totalOrders', this.value)"
+            onkeydown="handleKeyNavigation(event, this)"></td>
+          <td><input type="number" value="${log.cancelled}" 
+            onchange="updateLog(${i}, 'cancelled', this.value)"
+            onkeydown="handleKeyNavigation(event, this)"></td>
+          <td><input type="number" value="${log.returned}" 
+            onchange="updateLog(${i}, 'returned', this.value)"
+            onkeydown="handleKeyNavigation(event, this)"></td>
           <td>
             <input type="text" value="${fmtCurrency(log.dailyGross)}" 
               onfocus="unformatInput(this)" 
-              onblur="updateLogCurrency(${i}, 'dailyGross', this)">
+              onblur="updateLogCurrency(${i}, 'dailyGross', this)"
+              onkeydown="handleKeyNavigation(event, this)">
           </td>
           <td style="font-weight: bold; color: var(--accent-green); text-align: center;">${remainingOrders}</td>
           <td>
             <input type="text" value="${fmtCurrency(log.remainingIncome)}" 
               onfocus="unformatInput(this)" 
-              onblur="updateLogCurrency(${i}, 'remainingIncome', this)">
+              onblur="updateLogCurrency(${i}, 'remainingIncome', this)"
+              onkeydown="handleKeyNavigation(event, this)">
           </td>
         `;
         tbody.appendChild(tr);
@@ -756,19 +792,19 @@
     function updateLog(index, field, value) {
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
-      renderTrackerTable();
       calculateSummary();
     }
 
     function updateLogCurrency(index, field, inputElem) {
       const numVal = parseRawNumber(inputElem.value);
+      inputElem.value = fmtCurrency(numVal);
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
 
       if (field === 'dailyGross' && dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome === 0) {
         dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome = numVal;
+        renderTrackerTable();
       }
 
-      renderTrackerTable();
       calculateSummary();
     }
 
@@ -826,7 +862,7 @@
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
       document.getElementById('pctProduction').innerText = fmtPct(remainingProduction);
 
-      // Financial Breakdown Metrics Bar (DYNAMIC COMPUTATIONS)
+      // Financial Breakdown Metrics Bar
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
       const tiktokPerOrder = totalDeductions / safeVolume;
       const liveSellerPerOrder = (monthData.liveSeller || 0) / safeVolume;
@@ -838,7 +874,7 @@
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
-      // UPDATE GRAPH DYNAMICALLY WITH COMPUTED PER-ORDER VALUES
+      // UPDATE GRAPH DYNAMICALLY
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
       autoSaveToLocalStorage();
     }
@@ -850,8 +886,8 @@
         data: {
           labels: ['TIKTOK PER ORDER', 'LIVE SELLER', 'PRODUCTION'],
           datasets: [{
-            data: [0, 0, 0], // Starts dynamically computed
-            backgroundColor: ['#3b82f6', '#ef4444', '#84cc16'], // Matching Excel palette (Blue, Red, Green)
+            data: [0, 0, 0],
+            backgroundColor: ['#3b82f6', '#ef4444', '#84cc16'],
             borderWidth: 0
           }]
         },
