@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="en
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unique Apparel PH - Sales Report Dashboard</title>
   <!-- Chart.js for Visualization -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Chart.js Datalabels Plugin for Percentage inside slices -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- SheetJS Library for Excel Export -->
@@ -278,7 +280,7 @@
 
     .chart-box {
       position: relative;
-      height: 260px;
+      height: 280px;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -412,18 +414,6 @@
           <option value="2026" selected>2026</option>
           <option value="2027">2027</option>
           <option value="2028">2028</option>
-           <option value="2029">2029</option>
-           <option value="2030">2030</option>
-           <option value="2031">2031</option>
-           <option value="2032">2032</option>
-           <option value="2033">2033</option>
-           <option value="2034">2034</option>
-           <option value="2035">2035</option>
-           <option value="2036">2036</option>
-           <option value="2037">2037</option>
-           <option value="2038">2038</option>
-           <option value="2039">2039</option>
-           <option value="2040">2040</option>
         </select>
       </div>
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
@@ -520,7 +510,7 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>REMAINING INCOME</strong></td>
+              <td><strong>TOTAL GROSS SALES</strong></td>
               <td><span id="sumGrossSales">₱0.00</span></td>
               <td>100%</td>
               <td>
@@ -587,11 +577,11 @@
         <!-- Metrics Indicator Bar -->
         <div class="metrics-bar">
           <div class="metric-item">
-            <label>REMAINING ORDERS</label>
+            <label>TOTAL ORDERS VOLUME</label>
             <span id="metricTotalOrders" style="color: var(--text-main);">0</span>
           </div>
           <div class="metric-item">
-            <label>SALE PER PARCELS</label>
+            <label>SALE PER PARCEL</label>
             <span id="metricSalePerParcel" style="color: var(--accent-blue);">₱0.00</span>
           </div>
           <div class="metric-item">
@@ -613,7 +603,7 @@
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-chart-donut" style="color: var(--accent-green);"></i>
-          PARCELS COST ALLOCATION
+          PARCELS
         </div>
         <div class="chart-box">
           <canvas id="parcelsChart"></canvas>
@@ -629,6 +619,9 @@
   </div>
 
   <script>
+    // Register ChartDatalabels plugin
+    Chart.register(ChartDataLabels);
+
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
       "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -641,9 +634,9 @@
 
     window.onload = function() {
       loadFromLocalStorage();
+      initChart(); // Initialize chart first
       renderMonthNav();
       switchMonth(0);
-      initChart();
     };
 
     function parseRawNumber(str) {
@@ -833,15 +826,20 @@
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
       document.getElementById('pctProduction').innerText = fmtPct(remainingProduction);
 
-      // Financial Breakdown Metrics Bar
+      // Financial Breakdown Metrics Bar (DYNAMIC COMPUTATIONS)
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
+      const tiktokPerOrder = totalDeductions / safeVolume;
+      const liveSellerPerOrder = (monthData.liveSeller || 0) / safeVolume;
+      const productionPerOrder = remainingProduction / safeVolume;
+
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('metricSalePerParcel').innerText = fmtCurrency(totalGrossSales / safeVolume);
-      document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(totalDeductions / safeVolume);
-      document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency((monthData.liveSeller || 0) / safeVolume);
-      document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(remainingProduction / safeVolume);
+      document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(tiktokPerOrder);
+      document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
+      document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
-      updateChart(totalDeductions, monthData.adsExpense || 0, monthData.liveSeller || 0, Math.max(0, remainingProduction));
+      // UPDATE GRAPH DYNAMICALLY WITH COMPUTED PER-ORDER VALUES
+      updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
       autoSaveToLocalStorage();
     }
 
@@ -850,10 +848,10 @@
       parcelsChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['TIKTOK DEDUCTIONS', 'ADS EXPENSE', 'LIVE SELLER', 'PRODUCTION'],
+          labels: ['TIKTOK PER ORDER', 'LIVE SELLER', 'PRODUCTION'],
           datasets: [{
-            data: [25, 10, 15, 50],
-            backgroundColor: ['#38bdf8', '#fb923c', '#f87171', '#4ade80'],
+            data: [0, 0, 0], // Starts dynamically computed
+            backgroundColor: ['#3b82f6', '#ef4444', '#84cc16'], // Matching Excel palette (Blue, Red, Green)
             borderWidth: 0
           }]
         },
@@ -862,22 +860,34 @@
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: 'bottom',
-              labels: { color: '#9ca3af', font: { size: 10 } }
+              position: 'top',
+              labels: { color: '#9ca3af', font: { size: 10, weight: 'bold' } }
+            },
+            datalabels: {
+              color: '#ffffff',
+              font: { weight: 'bold', size: 12 },
+              formatter: (value, ctx) => {
+                let sum = 0;
+                let dataArr = ctx.chart.data.datasets[0].data;
+                dataArr.map(data => { sum += data; });
+                if (sum === 0) return '0%';
+                let percentage = (value * 100 / sum).toFixed(0) + "%";
+                return percentage;
+              }
             }
           },
-          cutout: '65%'
+          cutout: '55%'
         }
       });
     }
 
-    function updateChart(tiktokVal, adsVal, sellerVal, productionVal) {
+    function updateChart(tiktokVal, sellerVal, productionVal) {
       if (!parcelsChartInstance) return;
-      const total = tiktokVal + adsVal + sellerVal + productionVal;
+      const total = tiktokVal + sellerVal + productionVal;
       if (total === 0) {
-        parcelsChartInstance.data.datasets[0].data = [1, 1, 1, 1];
+        parcelsChartInstance.data.datasets[0].data = [0, 0, 0];
       } else {
-        parcelsChartInstance.data.datasets[0].data = [tiktokVal, adsVal, sellerVal, productionVal];
+        parcelsChartInstance.data.datasets[0].data = [tiktokVal, sellerVal, productionVal];
       }
       parcelsChartInstance.update();
     }
@@ -959,31 +969,23 @@
       }
     }
 
-    /* ============================================================
-       EXCEL EXPORT LOGIC (Matching exact layout from Image Reference)
-       ============================================================ */
+    /* EXCEL EXPORT LOGIC */
     function exportToExcel() {
       const monthData = dataStore[currentYear][currentMonthIndex];
       const monthName = months[currentMonthIndex];
 
-      // Prepare empty 2D Array Matrix for Sheet
       let sheetData = [];
-
-      // Row 0: Title Banner across Left Table (Cols A-G)
       sheetData.push([`SUMMARY OF ${monthName}`, "", "", "", "", "", ""]);
 
-      // Row 1: Headers for Daily Logs (Left) & Expense Table (Right)
       sheetData.push([
         "DATE", "TOTAL ORDERS", "REMAINING ORDERS", "CANCEL", "RETURN", "INCOME", "RAMAINING INCOME", 
-        "", // Blank separator column (Col H)
+        "", 
         "DESCRIPTION", "AMOUNT", "PERCENTAGE", "DISCREPENCY"
       ]);
 
-      // Calculate totals for daily tracker
       let totOrders = 0, totRemOrders = 0, totCancel = 0, totReturn = 0, totIncome = 0, totRemIncome = 0;
 
-      // Fill Daily Logs Rows
-      monthData.logs.forEach((log, idx) => {
+      monthData.logs.forEach((log) => {
         const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
         
         totOrders += log.totalOrders;
@@ -993,7 +995,6 @@
         totIncome += log.dailyGross;
         totRemIncome += log.remainingIncome;
 
-        // Format Date to "1-Jan-26" style
         const dObj = new Date(log.date);
         const dayStr = dObj.getDate();
         const monShort = monthName.substring(0, 3);
@@ -1013,12 +1014,10 @@
         sheetData.push(row);
       });
 
-      // Total Row for Daily Tracker
       sheetData.push([
         "TOTAL", totOrders, totRemOrders, totCancel, totReturn, totIncome, totRemIncome
       ]);
 
-      // Calculate Expense Breakdown figures
       const totalSales = totRemIncome;
       const tiktokFees = monthData.tiktokFees || 0;
       const tiktokAdj = monthData.tiktokAdj || 0;
@@ -1030,7 +1029,6 @@
 
       const calcPct = val => totalSales > 0 ? (val / totalSales) : 0;
 
-      // Map Expense Breakdown Table into Right Side Columns (I, J, K, L -> Index 8, 9, 10, 11)
       const expenseRows = [
         ["TOTAL SALES", totalSales, calcPct(totalSales), discrepancy],
         ["TIKTOK FEES", tiktokFees, calcPct(tiktokFees), ""],
@@ -1042,62 +1040,36 @@
       ];
 
       expenseRows.forEach((expRow, idx) => {
-        let targetRowIdx = idx + 2; // Start from Row 2
-        while (sheetData.length <= targetRowIdx) {
-          sheetData.push([]);
-        }
-        // Ensure array has enough elements
-        while (sheetData[targetRowIdx].length < 8) {
-          sheetData[targetRowIdx].push("");
-        }
+        let targetRowIdx = idx + 2;
+        while (sheetData.length <= targetRowIdx) sheetData.push([]);
+        while (sheetData[targetRowIdx].length < 8) sheetData[targetRowIdx].push("");
         sheetData[targetRowIdx].push(...expRow);
       });
 
-      // Parcel Breakdown Summary Table (Bottom Right)
       const safeParcels = totRemOrders > 0 ? totRemOrders : 1;
       const salesPerParcel = totalSales / safeParcels;
       const tiktokPerParcel = totalDeduction / safeParcels;
       const sellerPerParcel = liveSeller / safeParcels;
       const prodPerParcel = remainingProd / safeParcels;
 
-      const parcelHeaderIdx = 10; // Row 10
-      while (sheetData.length <= parcelHeaderIdx + 1) {
-        sheetData.push([]);
-      }
+      const parcelHeaderIdx = 10;
+      while (sheetData.length <= parcelHeaderIdx + 1) sheetData.push([]);
 
-      // Fill Parcel Headers
       while (sheetData[parcelHeaderIdx].length < 8) sheetData[parcelHeaderIdx].push("");
       sheetData[parcelHeaderIdx].push("TOTAL ORDERS", "SALES PER PARCELS", "TIKTOK", "LIVE SELLER", "PRODUCTION");
 
-      // Fill Parcel Values
       while (sheetData[parcelHeaderIdx + 1].length < 8) sheetData[parcelHeaderIdx + 1].push("");
       sheetData[parcelHeaderIdx + 1].push(totRemOrders, salesPerParcel, tiktokPerParcel, sellerPerParcel, prodPerParcel);
 
-      // Create Worksheet using SheetJS
       const ws = XLSX.utils.aoa_to_sheet(sheetData);
 
-      // Apply Column Widths
       ws['!cols'] = [
-        { wch: 12 }, // Date
-        { wch: 14 }, // Total Orders
-        { wch: 18 }, // Remaining Orders
-        { wch: 10 }, // Cancel
-        { wch: 10 }, // Return
-        { wch: 14 }, // Income
-        { wch: 18 }, // Remaining Income
-        { wch: 5 },  // Gap Column
-        { wch: 28 }, // Description
-        { wch: 16 }, // Amount
-        { wch: 14 }, // Percentage
-        { wch: 16 }, // Discrepancy
-        { wch: 14 }  // Parcel extra col
+        { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 18 },
+        { wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }
       ];
 
-      // Create Workbook & Append Sheet
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, `${monthName}_Summary`);
-
-      // Save/Download Excel file
       XLSX.writeFile(wb, `Sales_Summary_${monthName}_${currentYear}.xlsx`);
     }
   </script>
