@@ -799,13 +799,16 @@
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
 
+      // TOTAL GROSS SALES IS NOW BASED ON REMAINING INCOME SUM
+      const totalGrossSales = sumRemainingIncome;
+
       // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment
       const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
       
-      // REMAINING FOR PRODUCTION = TOTAL GROSS SALES - Total Deductions - Live Seller
-      const remainingProduction = sumDailyGrossIncome - totalDeductions - (monthData.liveSeller || 0);
+      // REMAINING FOR PRODUCTION = TOTAL GROSS SALES (Remaining Income) - Total Deductions - Live Seller
+      const remainingProduction = totalGrossSales - totalDeductions - (monthData.liveSeller || 0);
 
-      const fmtPct = num => (sumDailyGrossIncome > 0 ? ((num / sumDailyGrossIncome) * 100).toFixed(2) : '0.00') + '%';
+      const fmtPct = num => (totalGrossSales > 0 ? ((num / totalGrossSales) * 100).toFixed(2) : '0.00') + '%';
 
       // KPI Top Cards
       document.getElementById('kpiGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
@@ -815,7 +818,7 @@
       document.getElementById('kpiReturnedVolume').innerText = returnedVolume.toLocaleString();
 
       // Breakdown Table
-      document.getElementById('sumGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
+      document.getElementById('sumGrossSales').innerText = fmtCurrency(totalGrossSales);
       document.getElementById('pctTiktokFees').innerText = fmtPct(monthData.tiktokFees);
       document.getElementById('pctTiktokAdj').innerText = fmtPct(monthData.tiktokAdj);
       document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
@@ -831,7 +834,7 @@
       // Financial Breakdown Metrics Bar
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
-      document.getElementById('metricSalePerParcel').innerText = fmtCurrency(sumDailyGrossIncome / safeVolume);
+      document.getElementById('metricSalePerParcel').innerText = fmtCurrency(totalGrossSales / safeVolume);
       document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(totalDeductions / safeVolume);
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency((monthData.liveSeller || 0) / safeVolume);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(remainingProduction / safeVolume);
