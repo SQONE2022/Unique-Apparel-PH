@@ -522,15 +522,15 @@
               <td><input type="number" id="inputTiktokAdj" value="0" oninput="calculateSummary()"></td>
               <td><span id="pctTiktokAdj">0%</span></td>
             </tr>
-            <tr>
-              <td>Ads Expense</td>
-              <td><input type="number" id="inputAdsExpense" value="0" oninput="calculateSummary()"></td>
-              <td><span id="pctAdsExpense">0%</span></td>
-            </tr>
             <tr style="border-top: 1px solid var(--border-color); font-weight: bold;">
               <td>TOTAL DEDUCTIONS</td>
               <td><span id="sumTotalDeductions" style="color: var(--accent-red);">₱0.00</span></td>
               <td><span id="pctTotalDeductions">0%</span></td>
+            </tr>
+            <tr>
+              <td>Ads Expense</td>
+              <td><input type="number" id="inputAdsExpense" value="0" oninput="calculateSummary()"></td>
+              <td><span id="pctAdsExpense">0%</span></td>
             </tr>
             <tr>
               <td>Live Seller Payroll</td>
@@ -548,7 +548,7 @@
         <!-- Metrics Indicator Bar -->
         <div class="metrics-bar">
           <div class="metric-item">
-            <label>Remaining Orders</label>
+            <label>Total Orders</label>
             <span id="metricTotalOrders" style="color: var(--text-main);">0</span>
           </div>
           <div class="metric-item">
@@ -731,10 +731,13 @@
         returnedVolume += log.returned;
       });
 
-      // Tumatakbong Natitirang Orders sa Daily Records
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
-      const totalDeductions = monthData.tiktokFees + monthData.tiktokAdj + monthData.adsExpense;
-      const remainingProduction = sumRemainingIncome - totalDeductions - monthData.liveSeller;
+      
+      // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment lamang
+      const totalDeductions = monthData.tiktokFees + monthData.tiktokAdj;
+      
+      // Remaining for Production = Remaining Income - Total Deductions - Ads Expense - Live Seller
+      const remainingProduction = sumRemainingIncome - totalDeductions - monthData.adsExpense - monthData.liveSeller;
 
       const fmtCurrency = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const fmtPct = num => (sumRemainingIncome > 0 ? ((num / sumRemainingIncome) * 100).toFixed(2) : '0.00') + '%';
@@ -750,17 +753,17 @@
       document.getElementById('sumGrossSales').innerText = fmtCurrency(sumRemainingIncome);
       document.getElementById('pctTiktokFees').innerText = fmtPct(monthData.tiktokFees);
       document.getElementById('pctTiktokAdj').innerText = fmtPct(monthData.tiktokAdj);
-      document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
       
       document.getElementById('sumTotalDeductions').innerText = fmtCurrency(totalDeductions);
       document.getElementById('pctTotalDeductions').innerText = fmtPct(totalDeductions);
 
+      document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
       document.getElementById('pctLiveSeller').innerText = fmtPct(monthData.liveSeller);
       
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
       document.getElementById('pctProduction').innerText = fmtPct(remainingProduction);
 
-      // Financial Breakdown Metrics Bar (Total Orders ay ipinapakita gamit ang sumRemainingOrders mula sa Daily Records)
+      // Financial Breakdown Metrics Bar
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('metricSalePerParcel').innerText = fmtCurrency(sumRemainingIncome / safeVolume);
@@ -768,7 +771,7 @@
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(monthData.liveSeller / safeVolume);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(remainingProduction / safeVolume);
 
-      updateChart(totalDeductions, monthData.liveSeller, Math.max(0, remainingProduction));
+      updateChart(totalDeductions, monthData.adsExpense, monthData.liveSeller, Math.max(0, remainingProduction));
       autoSaveToLocalStorage();
     }
 
@@ -777,10 +780,10 @@
       parcelsChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['TIKTOK / DEDUCTIONS', 'LIVE SELLER', 'PRODUCTION'],
+          labels: ['TIKTOK DEDUCTIONS', 'ADS EXPENSE', 'LIVE SELLER', 'PRODUCTION'],
           datasets: [{
-            data: [33, 13, 54],
-            backgroundColor: ['#38bdf8', '#f87171', '#4ade80'],
+            data: [25, 10, 15, 50],
+            backgroundColor: ['#38bdf8', '#fb923c', '#f87171', '#4ade80'],
             borderWidth: 0
           }]
         },
@@ -790,7 +793,7 @@
           plugins: {
             legend: {
               position: 'bottom',
-              labels: { color: '#9ca3af', font: { size: 11 } }
+              labels: { color: '#9ca3af', font: { size: 10 } }
             }
           },
           cutout: '65%'
@@ -798,13 +801,13 @@
       });
     }
 
-    function updateChart(tiktokVal, sellerVal, productionVal) {
+    function updateChart(tiktokVal, adsVal, sellerVal, productionVal) {
       if (!parcelsChartInstance) return;
-      const total = tiktokVal + sellerVal + productionVal;
+      const total = tiktokVal + adsVal + sellerVal + productionVal;
       if (total === 0) {
-        parcelsChartInstance.data.datasets[0].data = [1, 1, 1];
+        parcelsChartInstance.data.datasets[0].data = [1, 1, 1, 1];
       } else {
-        parcelsChartInstance.data.datasets[0].data = [tiktokVal, sellerVal, productionVal];
+        parcelsChartInstance.data.datasets[0].data = [tiktokVal, adsVal, sellerVal, productionVal];
       }
       parcelsChartInstance.update();
     }
