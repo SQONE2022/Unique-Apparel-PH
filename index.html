@@ -217,7 +217,7 @@
       background-color: rgba(255, 255, 255, 0.03);
     }
 
-    input[type="number"] {
+    input[type="text"], input[type="number"] {
       width: 100%;
       background: #0d1117;
       border: 1px solid var(--border-color);
@@ -225,9 +225,10 @@
       padding: 5px 8px;
       border-radius: 4px;
       outline: none;
+      font-weight: 600;
     }
 
-    input[type="number"]:focus {
+    input[type="text"]:focus, input[type="number"]:focus {
       border-color: var(--accent-blue);
     }
 
@@ -459,9 +460,9 @@
                 <th>Total Orders</th>
                 <th>Cancelled</th>
                 <th>Returned</th>
-                <th>Daily Gross Income (₱)</th>
+                <th>Daily Gross Income</th>
                 <th>Remaining Orders</th>
-                <th>Remaining Income (₱)</th>
+                <th>Remaining Income</th>
               </tr>
             </thead>
             <tbody id="trackerTableBody">
@@ -512,23 +513,39 @@
               <td><strong>TOTAL GROSS SALES</strong></td>
               <td><span id="sumGrossSales">₱0.00</span></td>
               <td>100%</td>
-              <td><input type="number" step="0.01" id="inputDiscrepancy" value="0" oninput="saveInputsOnly()" placeholder="₱0.00"></td>
+              <td>
+                <input type="text" id="inputDiscrepancy" value="₱0.00" 
+                  onfocus="unformatInput(this)" 
+                  onblur="formatInputCurrency(this, 'discrepancy')">
+              </td>
             </tr>
             <tr>
               <td>TIKTOK FEES</td>
-              <td><input type="number" id="inputTiktokFees" value="0" oninput="calculateSummary()"></td>
+              <td>
+                <input type="text" id="inputTiktokFees" value="₱0.00" 
+                  onfocus="unformatInput(this)" 
+                  onblur="formatInputCurrency(this, 'tiktokFees')">
+              </td>
               <td><span id="pctTiktokFees">0%</span></td>
               <td></td>
             </tr>
             <tr>
               <td>TIKTOK ADJUSTMENT</td>
-              <td><input type="number" id="inputTiktokAdj" value="0" oninput="calculateSummary()"></td>
+              <td>
+                <input type="text" id="inputTiktokAdj" value="₱0.00" 
+                  onfocus="unformatInput(this)" 
+                  onblur="formatInputCurrency(this, 'tiktokAdj')">
+              </td>
               <td><span id="pctTiktokAdj">0%</span></td>
               <td></td>
             </tr>
             <tr>
               <td>ADS EXPENSE</td>
-              <td><input type="number" id="inputAdsExpense" value="0" oninput="calculateSummary()"></td>
+              <td>
+                <input type="text" id="inputAdsExpense" value="₱0.00" 
+                  onfocus="unformatInput(this)" 
+                  onblur="formatInputCurrency(this, 'adsExpense')">
+              </td>
               <td><span id="pctAdsExpense">0%</span></td>
               <td></td>
             </tr>
@@ -540,7 +557,11 @@
             </tr>
             <tr>
               <td>LIVE SELLER</td>
-              <td><input type="number" id="inputLiveSeller" value="0" oninput="calculateSummary()"></td>
+              <td>
+                <input type="text" id="inputLiveSeller" value="₱0.00" 
+                  onfocus="unformatInput(this)" 
+                  onblur="formatInputCurrency(this, 'liveSeller')">
+              </td>
               <td><span id="pctLiveSeller">0%</span></td>
               <td></td>
             </tr>
@@ -616,6 +637,31 @@
       initChart();
     };
 
+    function parseRawNumber(str) {
+      if (typeof str === 'number') return str;
+      if (!str) return 0;
+      const clean = str.toString().replace(/[^0-9.-]+/g, "");
+      return parseFloat(clean) || 0;
+    }
+
+    function fmtCurrency(num) {
+      return '₱' + (num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function unformatInput(inputElem) {
+      const rawVal = parseRawNumber(inputElem.value);
+      inputElem.value = rawVal === 0 ? '' : rawVal;
+    }
+
+    function formatInputCurrency(inputElem, fieldName) {
+      const rawVal = parseRawNumber(inputElem.value);
+      inputElem.value = fmtCurrency(rawVal);
+      
+      const monthData = dataStore[currentYear][currentMonthIndex];
+      monthData[fieldName] = rawVal;
+      calculateSummary();
+    }
+
     function renderMonthNav() {
       const nav = document.getElementById('monthNav');
       nav.innerHTML = '';
@@ -690,9 +736,17 @@
           <td><input type="number" value="${log.totalOrders}" onchange="updateLog(${i}, 'totalOrders', this.value)"></td>
           <td><input type="number" value="${log.cancelled}" onchange="updateLog(${i}, 'cancelled', this.value)"></td>
           <td><input type="number" value="${log.returned}" onchange="updateLog(${i}, 'returned', this.value)"></td>
-          <td><input type="number" step="0.01" value="${log.dailyGross}" onchange="updateLog(${i}, 'dailyGross', this.value)"></td>
+          <td>
+            <input type="text" value="${fmtCurrency(log.dailyGross)}" 
+              onfocus="unformatInput(this)" 
+              onblur="updateLogCurrency(${i}, 'dailyGross', this)">
+          </td>
           <td style="font-weight: bold; color: var(--accent-green); text-align: center;">${remainingOrders}</td>
-          <td><input type="number" step="0.01" value="${log.remainingIncome}" onchange="updateLog(${i}, 'remainingIncome', this.value)"></td>
+          <td>
+            <input type="text" value="${fmtCurrency(log.remainingIncome)}" 
+              onfocus="unformatInput(this)" 
+              onblur="updateLogCurrency(${i}, 'remainingIncome', this)">
+          </td>
         `;
         tbody.appendChild(tr);
       });
@@ -701,7 +755,14 @@
     function updateLog(index, field, value) {
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
-      
+      renderTrackerTable();
+      calculateSummary();
+    }
+
+    function updateLogCurrency(index, field, inputElem) {
+      const numVal = parseRawNumber(inputElem.value);
+      dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
+
       if (field === 'dailyGross' && dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome === 0) {
         dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome = numVal;
       }
@@ -712,27 +773,15 @@
 
     function loadSummaryInputs() {
       const monthData = dataStore[currentYear][currentMonthIndex];
-      document.getElementById('inputDiscrepancy').value = monthData.discrepancy || 0;
-      document.getElementById('inputTiktokFees').value = monthData.tiktokFees || 0;
-      document.getElementById('inputTiktokAdj').value = monthData.tiktokAdj || 0;
-      document.getElementById('inputAdsExpense').value = monthData.adsExpense || 0;
-      document.getElementById('inputLiveSeller').value = monthData.liveSeller || 0;
-    }
-
-    function saveInputsOnly() {
-      const monthData = dataStore[currentYear][currentMonthIndex];
-      monthData.discrepancy = parseFloat(document.getElementById('inputDiscrepancy').value) || 0;
-      autoSaveToLocalStorage();
+      document.getElementById('inputDiscrepancy').value = fmtCurrency(monthData.discrepancy);
+      document.getElementById('inputTiktokFees').value = fmtCurrency(monthData.tiktokFees);
+      document.getElementById('inputTiktokAdj').value = fmtCurrency(monthData.tiktokAdj);
+      document.getElementById('inputAdsExpense').value = fmtCurrency(monthData.adsExpense);
+      document.getElementById('inputLiveSeller').value = fmtCurrency(monthData.liveSeller);
     }
 
     function calculateSummary() {
       const monthData = dataStore[currentYear][currentMonthIndex];
-      
-      monthData.discrepancy = parseFloat(document.getElementById('inputDiscrepancy').value) || 0;
-      monthData.tiktokFees = parseFloat(document.getElementById('inputTiktokFees').value) || 0;
-      monthData.tiktokAdj = parseFloat(document.getElementById('inputTiktokAdj').value) || 0;
-      monthData.adsExpense = parseFloat(document.getElementById('inputAdsExpense').value) || 0;
-      monthData.liveSeller = parseFloat(document.getElementById('inputLiveSeller').value) || 0;
 
       let sumDailyGrossIncome = 0;
       let sumRemainingIncome = 0;
@@ -751,12 +800,11 @@
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
 
       // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment
-      const totalDeductions = monthData.tiktokFees + monthData.tiktokAdj;
+      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
       
       // REMAINING FOR PRODUCTION = TOTAL GROSS SALES - Total Deductions - Live Seller
-      const remainingProduction = sumDailyGrossIncome - totalDeductions - monthData.liveSeller;
+      const remainingProduction = sumDailyGrossIncome - totalDeductions - (monthData.liveSeller || 0);
 
-      const fmtCurrency = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const fmtPct = num => (sumDailyGrossIncome > 0 ? ((num / sumDailyGrossIncome) * 100).toFixed(2) : '0.00') + '%';
 
       // KPI Top Cards
@@ -785,10 +833,10 @@
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('metricSalePerParcel').innerText = fmtCurrency(sumDailyGrossIncome / safeVolume);
       document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(totalDeductions / safeVolume);
-      document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(monthData.liveSeller / safeVolume);
+      document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency((monthData.liveSeller || 0) / safeVolume);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(remainingProduction / safeVolume);
 
-      updateChart(totalDeductions, monthData.adsExpense, monthData.liveSeller, Math.max(0, remainingProduction));
+      updateChart(totalDeductions, monthData.adsExpense || 0, monthData.liveSeller || 0, Math.max(0, remainingProduction));
       autoSaveToLocalStorage();
     }
 
