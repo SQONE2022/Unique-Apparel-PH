@@ -52,17 +52,40 @@
       gap: 15px;
     }
 
-    .brand h1 {
-      font-size: 1.6rem;
-      color: #ffffff;
-      font-weight: 700;
-      letter-spacing: 1px;
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .brand p {
+    .brand-icon {
+      background: linear-gradient(135deg, #e11d48, #3b82f6, #10b981);
+      width: 45px;
+      height: 45px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ef4444, #3b82f6, #eab308, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
       font-size: 0.85rem;
       color: var(--accent-blue);
       font-style: italic;
+      margin-top: 2px;
     }
 
     .year-selector {
@@ -399,11 +422,16 @@
 </head>
 <body>
 
-  <!-- Header Section -->
+  <!-- Header Section (Pure CSS Styling) -->
   <header>
-    <div class="brand">
-      <h1>UNIQUE APPAREL PH</h1>
-      <p>"Wear the fun, feel comfort" - Control Software System</p>
+    <div class="brand-container">
+      <div class="brand-icon">
+        <i class="fa-solid fa-shirt"></i>
+      </div>
+      <div class="brand-text">
+        <div class="brand-title">UNIQUE APPAREL PH</div>
+        <p>"Wear the fun, feel comfort" - Control Software System</p>
+      </div>
     </div>
 
     <div style="display: flex; gap: 10px; align-items: center;">
@@ -669,21 +697,18 @@
       calculateSummary();
     }
 
-    // TAB & ENTER NAVIGATION HANDLER FOR INPUTS
     function handleKeyNavigation(event, currentInput) {
       if (event.key === 'Tab' || event.key === 'Enter') {
-        currentInput.blur(); // Triggers blur/formatting & calculation instantly
-        
-        // Find next input in DOM order
+        currentInput.blur();
         const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
         const currentIndex = inputs.indexOf(currentInput);
         
-        if (event.shiftKey) { // Shift + Tab -> Move backwards
+        if (event.shiftKey) {
           if (currentIndex > 0) {
             event.preventDefault();
             inputs[currentIndex - 1].focus();
           }
-        } else { // Tab or Enter -> Move forwards
+        } else {
           if (currentIndex < inputs.length - 1) {
             event.preventDefault();
             inputs[currentIndex + 1].focus();
@@ -874,7 +899,6 @@
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
-      // UPDATE GRAPH DYNAMICALLY
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
       autoSaveToLocalStorage();
     }
