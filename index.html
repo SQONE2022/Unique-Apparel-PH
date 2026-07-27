@@ -733,11 +733,11 @@
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
       
-      // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment lamang
+      // TOTAL DEDUCTIONS = TikTok Fees + TikTok Adjustment
       const totalDeductions = monthData.tiktokFees + monthData.tiktokAdj;
       
-      // Remaining for Production = Remaining Income - Total Deductions - Ads Expense - Live Seller
-      const remainingProduction = sumRemainingIncome - totalDeductions - monthData.adsExpense - monthData.liveSeller;
+      // REMAINING FOR PRODUCTION = TOTAL GROSS SALES - Total Deductions - Live Seller
+      const remainingProduction = sumRemainingIncome - totalDeductions - monthData.liveSeller;
 
       const fmtCurrency = num => '₱' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       const fmtPct = num => (sumRemainingIncome > 0 ? ((num / sumRemainingIncome) * 100).toFixed(2) : '0.00') + '%';
