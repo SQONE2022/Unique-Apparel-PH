@@ -332,7 +332,17 @@
       transition: opacity 0.2s;
     }
 
-    .btn-action:hover, .btn-excel:hover {
+    .btn-admin {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-action:hover, .btn-excel:hover, .btn-admin:hover {
       opacity: 0.9;
     }
 
@@ -418,11 +428,36 @@
       max-height: 90%;
       border-radius: 8px;
     }
+
+    /* ======================================================== */
+    /* VIEWER READ-ONLY LOCK STYLES (DEFAULT FOR PUBLIC) */
+    /* ======================================================== */
+    body.is-viewer input {
+      pointer-events: none !important;
+      background: transparent !important;
+      border: 1px solid transparent !important;
+      color: var(--text-main) !important;
+      font-weight: 600;
+    }
+
+    body.is-viewer .admin-only {
+      display: none !important;
+    }
+
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .badge-viewer { background: #374151; color: #9ca3af; }
+    .badge-admin { background: #059669; color: #ffffff; }
   </style>
 </head>
-<body>
+<body class="is-viewer">
 
-  <!-- Header Section (Pure CSS Styling) -->
+  <!-- Header Section -->
   <header>
     <div class="brand-container">
       <div class="brand-icon">
@@ -434,7 +469,13 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <span id="roleBadge" class="status-badge badge-viewer"><i class="fa-solid fa-eye"></i> Viewer Mode</span>
+
+      <button id="adminToggleBtn" class="btn-admin" onclick="toggleAdminAccess()">
+        <i class="fa-solid fa-lock"></i> Admin Access
+      </button>
+
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
         <select id="yearSelect" onchange="changeYear()">
@@ -445,8 +486,9 @@
           <option value="2028">2028</option>
         </select>
       </div>
+
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
+      <button class="btn-action admin-only" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
     </div>
   </header>
 
@@ -511,7 +553,7 @@
           <i class="fa-solid fa-images" style="color: var(--accent-blue);"></i>
           MONTHLY PROOF & ATTACHMENTS (<span id="imageCount">0</span>/5)
         </div>
-        <div class="upload-box" onclick="document.getElementById('imageUploadInput').click()">
+        <div class="upload-box admin-only" onclick="document.getElementById('imageUploadInput').click()">
           <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 5px;"></i>
           <p style="font-size: 0.85rem; color: var(--text-muted);">Click or Drag images to upload (Max 5)</p>
           <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
@@ -655,6 +697,11 @@
   <script>
     Chart.register(ChartDataLabels);
 
+    // SECURITY PIN FOR 2 MAIN CONTROLLERS
+    const ADMIN_PASSKEY = "1234"; // Pwedeng palitan ng kahit anong PIN/Password mo
+
+    let isAdminMode = false;
+
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
       "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -672,6 +719,37 @@
       switchMonth(0);
     };
 
+    /* ADMIN ACCESS LOCK / UNLOCK SYSTEM */
+    function toggleAdminAccess() {
+      if (!isAdminMode) {
+        const key = prompt("Enter Main Handle Passkey:");
+        if (key === ADMIN_PASSKEY) {
+          isAdminMode = true;
+          document.body.classList.remove('is-viewer');
+          
+          const badge = document.getElementById('roleBadge');
+          badge.className = "status-badge badge-admin";
+          badge.innerHTML = '<i class="fa-solid fa-user-shield"></i> Admin Handle';
+          
+          document.getElementById('adminToggleBtn').innerHTML = '<i class="fa-solid fa-lock-open"></i> Lock Admin';
+          renderImages();
+          alert("Admin Access Granted! You can now edit and save changes.");
+        } else if (key !== null) {
+          alert("Incorrect Passkey! Access denied.");
+        }
+      } else {
+        isAdminMode = false;
+        document.body.classList.add('is-viewer');
+        
+        const badge = document.getElementById('roleBadge');
+        badge.className = "status-badge badge-viewer";
+        badge.innerHTML = '<i class="fa-solid fa-eye"></i> Viewer Mode';
+        
+        document.getElementById('adminToggleBtn').innerHTML = '<i class="fa-solid fa-lock"></i> Admin Access';
+        renderImages();
+      }
+    }
+
     function parseRawNumber(str) {
       if (typeof str === 'number') return str;
       if (!str) return 0;
@@ -684,11 +762,13 @@
     }
 
     function unformatInput(inputElem) {
+      if (!isAdminMode) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = rawVal === 0 ? '' : rawVal;
     }
 
     function formatInputCurrency(inputElem, fieldName) {
+      if (!isAdminMode) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(rawVal);
       
@@ -698,6 +778,7 @@
     }
 
     function handleKeyNavigation(event, currentInput) {
+      if (!isAdminMode) return;
       if (event.key === 'Tab' || event.key === 'Enter') {
         currentInput.blur();
         const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
@@ -815,12 +896,14 @@
     }
 
     function updateLog(index, field, value) {
+      if (!isAdminMode) return;
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
       calculateSummary();
     }
 
     function updateLogCurrency(index, field, inputElem) {
+      if (!isAdminMode) return;
       const numVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(numVal);
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
@@ -900,7 +983,7 @@
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
-      autoSaveToLocalStorage();
+      if (isAdminMode) autoSaveToLocalStorage();
     }
 
     function initChart() {
@@ -954,6 +1037,7 @@
 
     /* IMAGE UPLOAD LOGIC */
     function handleImageUpload(event) {
+      if (!isAdminMode) return;
       const files = Array.from(event.target.files);
       const currentImages = dataStore[currentYear][currentMonthIndex].images;
 
@@ -988,13 +1072,14 @@
         card.className = 'image-card';
         card.innerHTML = `
           <img src="${imgSrc}" onclick="viewImage('${imgSrc}')" alt="Attachment ${index + 1}">
-          <button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>
+          ${isAdminMode ? `<button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>` : ''}
         `;
         container.appendChild(card);
       });
     }
 
     function deleteImage(index) {
+      if (!isAdminMode) return;
       dataStore[currentYear][currentMonthIndex].images.splice(index, 1);
       renderImages();
       autoSaveToLocalStorage();
@@ -1014,8 +1099,12 @@
     }
 
     function saveCurrentData() {
+      if (!isAdminMode) {
+        alert("Viewers cannot save data.");
+        return;
+      }
       autoSaveToLocalStorage();
-      alert('Data and images successfully saved for Year ' + currentYear + ' (' + months[currentMonthIndex] + ')!');
+      alert('Data successfully saved for Year ' + currentYear + ' (' + months[currentMonthIndex] + ')!');
     }
 
     function loadFromLocalStorage() {
