@@ -624,6 +624,9 @@
     const ADMIN_PASSWORD = "admin123"; // PASSWORD SA ADMIN
     let isAdmin = false;
 
+    // 🔴 PALITAN ITO NG WEBB APP URL MULA SA GOOGLE APPS SCRIPT STEP 1
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-fu85LfF40ZZEw_bNMnTdiiby6ittsxUjhrszd_9Bhc0Ua9LxWMrOlWFbtx2v5S8v/exec";
+
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
       "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -635,11 +638,14 @@
     let dataStore = {};
 
     window.onload = function() {
-      loadFromLocalStorage();
+      loadFromLocalStorage(); // Priority 1: Unang gagamitin ang nasa screen/local
       initChart();
       renderMonthNav();
       switchMonth(0);
       applyRolePermissions();
+
+      // Priority 2: Subukang mag-sync mula sa Google Sheets Cloud
+      loadFromGoogleSheets();
     };
 
     function toggleAdminAuth() {
@@ -1012,14 +1018,9 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    /* LOCAL STORAGE */
+    /* LOCAL STORAGE & GOOGLE SHEETS SYNC */
     function autoSaveToLocalStorage() {
       localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
-    }
-
-    function saveCurrentData() {
-      autoSaveToLocalStorage();
-      alert('Data saved successfully!');
     }
 
     function loadFromLocalStorage() {
@@ -1027,6 +1028,53 @@
       if (saved) {
         try { dataStore = JSON.parse(saved); } catch(e) {}
       }
+    }
+
+    /* READ FROM GOOGLE SHEETS */
+    function loadFromGoogleSheets() {
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) return;
+      
+      fetch(GOOGLE_SCRIPT_URL)
+        .then(response => response.json())
+        .then(data => {
+          if (data && Object.keys(data).length > 0) {
+            dataStore = data;
+            autoSaveToLocalStorage(); // Sync back to local storage
+            switchMonth(currentMonthIndex);
+            console.log("Data synced successfully from Google Sheets!");
+          }
+        })
+        .catch(err => console.log("Google Sheets load error/offline, using LocalStorage:", err));
+    }
+
+    /* SAVE TO GOOGLE SHEETS & LOCAL STORAGE */
+    function saveCurrentData() {
+      autoSaveToLocalStorage();
+      
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
+        alert('Data saved to Browser LocalStorage only. Please add Google Script URL to sync to Cloud!');
+        return;
+      }
+
+      // Visual feedback sa Button
+      const saveBtn = document.getElementById('saveDataBtn');
+      const origText = saveBtn.innerHTML;
+      saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataStore)
+      })
+      .then(() => {
+        saveBtn.innerHTML = origText;
+        alert('Data saved successfully to Google Sheets & Local Storage!');
+      })
+      .catch(error => {
+        saveBtn.innerHTML = origText;
+        alert('Saved to Local Storage, but failed to reach Google Sheets: ' + error);
+      });
     }
 
     /* EXCEL EXPORT */
