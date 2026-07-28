@@ -6,7 +6,7 @@
   <title>Unique Apparel PH - Sales Report Dashboard</title>
   <!-- Chart.js for Visualization -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Chart.js Datalabels Plugin -->
+  <!-- Chart.js Datalabels Plugin for Percentage inside slices -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,17 +26,21 @@
       --text-muted: #9ca3af;
       --border-color: #30363d;
     }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
       padding: 20px;
     }
+
+    /* Header & Controls */
     header {
       display: flex;
       justify-content: space-between;
@@ -47,11 +51,13 @@
       flex-wrap: wrap;
       gap: 15px;
     }
+
     .brand-container {
       display: flex;
       align-items: center;
       gap: 12px;
     }
+
     .brand-icon {
       background: linear-gradient(135deg, #e11d48, #3b82f6, #10b981);
       width: 45px;
@@ -64,6 +70,7 @@
       color: #ffffff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
+
     .brand-title {
       font-size: 1.5rem;
       font-weight: 900;
@@ -73,32 +80,14 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
     .brand-text p {
       font-size: 0.85rem;
       color: var(--accent-blue);
       font-style: italic;
       margin-top: 2px;
     }
-    .role-badge {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: bold;
-      text-transform: uppercase;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .role-viewer {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-blue);
-      border: 1px solid var(--accent-blue);
-    }
-    .role-admin {
-      background: rgba(74, 222, 128, 0.15);
-      color: var(--accent-green);
-      border: 1px solid var(--accent-green);
-    }
+
     .year-selector {
       display: flex;
       align-items: center;
@@ -108,10 +97,12 @@
       border-radius: 8px;
       border: 1px solid var(--border-color);
     }
+
     .year-selector label {
       font-weight: 600;
       color: var(--text-muted);
     }
+
     .year-selector select {
       background: transparent;
       color: var(--accent-blue);
@@ -121,10 +112,13 @@
       outline: none;
       cursor: pointer;
     }
+
     .year-selector select option {
       background: var(--card-bg);
       color: var(--text-main);
     }
+
+    /* Month Navigation Bar */
     .month-nav {
       display: flex;
       gap: 8px;
@@ -132,6 +126,7 @@
       padding-bottom: 10px;
       margin-bottom: 25px;
     }
+
     .month-btn {
       background: var(--card-bg);
       color: var(--text-muted);
@@ -143,22 +138,27 @@
       transition: all 0.2s ease;
       font-weight: 600;
     }
+
     .month-btn:hover {
       border-color: var(--accent-blue);
       color: #fff;
     }
+
     .month-btn.active {
       background: var(--accent-blue);
       color: #0d1117;
       border-color: var(--accent-blue);
       font-weight: 700;
     }
+
+    /* Top Summary KPI Cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 15px;
       margin-bottom: 25px;
     }
+
     .kpi-card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -166,6 +166,7 @@
       border: 1px solid var(--border-color);
       text-align: center;
     }
+
     .kpi-card h4 {
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -173,21 +174,26 @@
       letter-spacing: 0.5px;
       margin-bottom: 8px;
     }
+
     .kpi-card .value {
       font-size: 1.6rem;
       font-weight: bold;
       color: var(--accent-blue);
     }
+
+    /* Main Dashboard Grid */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 20px;
     }
+
     @media (max-width: 1024px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
     }
+
     .section-card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -195,6 +201,7 @@
       padding: 20px;
       margin-bottom: 20px;
     }
+
     .section-title {
       font-size: 1.1rem;
       font-weight: 700;
@@ -204,17 +211,21 @@
       align-items: center;
       gap: 10px;
     }
+
+    /* Table Styling */
     .table-container {
       max-height: 480px;
       overflow-y: auto;
       border: 1px solid var(--border-color);
       border-radius: 6px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.88rem;
     }
+
     th {
       position: sticky;
       top: 0;
@@ -224,13 +235,16 @@
       padding: 10px;
       border-bottom: 1px solid var(--border-color);
     }
+
     td {
       padding: 8px 10px;
       border-bottom: 1px solid var(--border-color);
     }
+
     tr:hover {
       background-color: rgba(255, 255, 255, 0.03);
     }
+
     input[type="text"], input[type="number"] {
       width: 100%;
       background: #0d1117;
@@ -241,25 +255,25 @@
       outline: none;
       font-weight: 600;
     }
-    input[disabled] {
-      opacity: 0.7;
-      cursor: not-allowed;
-      background: #161b22;
-      border-color: transparent;
-    }
+
     input[type="text"]:focus, input[type="number"]:focus {
       border-color: var(--accent-blue);
       background: #1c2128;
     }
+
+    /* Deductions & Summary Breakdown */
     .summary-table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 15px;
     }
+
     .summary-table th, .summary-table td {
       padding: 10px;
       text-align: left;
     }
+
+    /* Bottom Metric Highlight Bar */
     .metrics-bar {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -270,9 +284,11 @@
       border: 1px solid var(--border-color);
       margin-top: 15px;
     }
+
     .metric-item {
       text-align: center;
     }
+
     .metric-item label {
       display: block;
       font-size: 0.75rem;
@@ -280,10 +296,12 @@
       margin-bottom: 4px;
       text-transform: uppercase;
     }
+
     .metric-item span {
       font-size: 1.1rem;
       font-weight: bold;
     }
+
     .chart-box {
       position: relative;
       height: 280px;
@@ -291,8 +309,10 @@
       justify-content: center;
       align-items: center;
     }
+
+    /* Action Buttons */
     .btn-action {
-      background: var(--accent-green);
+      background: var(--accent-blue);
       color: #0d1117;
       border: none;
       padding: 10px 16px;
@@ -301,8 +321,9 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
+
     .btn-excel {
-      background: #107c41;
+      background: #107c41; /* Excel Green */
       color: #ffffff;
       border: none;
       padding: 10px 16px;
@@ -311,18 +332,23 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
-    .btn-auth {
-      background: var(--accent-blue);
+
+    .btn-json {
+      background: var(--accent-purple);
       color: #0d1117;
       border: none;
       padding: 10px 16px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
+      transition: opacity 0.2s;
     }
-    .btn-action:hover, .btn-excel:hover, .btn-auth:hover {
+
+    .btn-action:hover, .btn-excel:hover, .btn-json:hover {
       opacity: 0.9;
     }
+
+    /* IMAGE ATTACHMENTS SECTION STYLES */
     .upload-box {
       border: 2px dashed var(--border-color);
       padding: 15px;
@@ -331,27 +357,41 @@
       background: #0d1117;
       cursor: pointer;
       margin-bottom: 20px;
+      transition: border-color 0.2s;
     }
+
+    .upload-box:hover {
+      border-color: var(--accent-blue);
+    }
+
     .image-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       align-items: flex-start;
     }
+
     .image-card {
       position: relative;
       border-radius: 8px;
       overflow: hidden;
       border: 1px solid var(--border-color);
       background: #0d1117;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       max-width: 100%;
     }
+
     .image-card img {
       display: block;
-      max-height: 200px;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 400px;
       object-fit: contain;
       cursor: pointer;
+      transition: transform 0.2s;
     }
+
     .delete-img-btn {
       position: absolute;
       top: 8px;
@@ -363,21 +403,38 @@
       width: 26px;
       height: 26px;
       cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      z-index: 10;
     }
-    .modal-overlay {
+
+    /* Image Lightbox Modal */
+    .image-modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0,0,0,0.85);
       z-index: 1000;
       justify-content: center;
       align-items: center;
     }
+
+    .image-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header Section -->
   <header>
     <div class="brand-container">
       <div class="brand-icon">
@@ -387,12 +444,9 @@
         <div class="brand-title">UNIQUE APPAREL PH</div>
         <p>"Wear the fun, feel comfort" - Control Software System</p>
       </div>
-      <div id="roleBadgeContainer" style="margin-left: 15px;">
-        <span class="role-badge role-viewer"><i class="fa-solid fa-eye"></i> Viewer Mode</span>
-      </div>
     </div>
-    
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
         <select id="yearSelect" onchange="changeYear()">
@@ -403,17 +457,18 @@
           <option value="2028">2028</option>
         </select>
       </div>
-
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-action" id="saveDataBtn" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
-      <button class="btn-auth" id="loginToggleBtn" onclick="toggleAdminAuth()"><i class="fa-solid fa-lock"></i> Admin Access</button>
+      <button class="btn-json" onclick="exportJSONData()"><i class="fa-solid fa-download"></i> Backup Data</button>
+      <button class="btn-json" onclick="document.getElementById('importJsonInput').click()"><i class="fa-solid fa-upload"></i> Restore Data</button>
+      <input type="file" id="importJsonInput" accept=".json" style="display: none;" onchange="importJSONData(event)">
+      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Local</button>
     </div>
   </header>
 
-  <!-- Month Selection -->
+  <!-- Month Selection Navigation -->
   <div class="month-nav" id="monthNav"></div>
 
-  <!-- KPI Overview -->
+  <!-- KPI Top Overview Cards -->
   <div class="kpi-grid">
     <div class="kpi-card">
       <h4>Daily Gross Sales</h4>
@@ -437,10 +492,11 @@
     </div>
   </div>
 
-  <!-- Main Grid -->
+  <!-- Main Content Dashboard Grid -->
   <div class="dashboard-grid">
+    
+    <!-- Left Column: Daily Tracker Logs Table + Images -->
     <div>
-      <!-- Tracker Table Card -->
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i>
@@ -464,13 +520,13 @@
         </div>
       </div>
 
-      <!-- Proof & Attachments -->
+      <!-- MONTHLY ATTACHMENTS CARD -->
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-images" style="color: var(--accent-blue);"></i>
           MONTHLY PROOF & ATTACHMENTS (<span id="imageCount">0</span>/5)
         </div>
-        <div class="upload-box" id="uploadBox" onclick="triggerImageUpload()">
+        <div class="upload-box" onclick="document.getElementById('imageUploadInput').click()">
           <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 5px;"></i>
           <p style="font-size: 0.85rem; color: var(--text-muted);">Click or Drag images to upload (Max 5)</p>
           <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
@@ -479,8 +535,9 @@
       </div>
     </div>
 
-    <!-- Breakdown Column -->
+    <!-- Right Column: Breakdown & Visual Chart -->
     <div>
+      <!-- Expenses & Breakdown Card -->
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i>
@@ -566,11 +623,11 @@
           </tbody>
         </table>
 
-        <!-- Metrics -->
+        <!-- Metrics Indicator Bar -->
         <div class="metrics-bar">
           <div class="metric-item">
             <label>TOTAL ORDERS VOLUME</label>
-            <span id="metricTotalOrders">0</span>
+            <span id="metricTotalOrders" style="color: var(--text-main);">0</span>
           </div>
           <div class="metric-item">
             <label>SALE PER PARCEL</label>
@@ -591,10 +648,10 @@
         </div>
       </div>
 
-      <!-- Donut Chart -->
+      <!-- Donut Chart Card -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-chart-pie" style="color: var(--accent-green);"></i>
+          <i class="fa-solid fa-chart-donut" style="color: var(--accent-green);"></i>
           PARCELS
         </div>
         <div class="chart-box">
@@ -602,18 +659,16 @@
         </div>
       </div>
     </div>
+
   </div>
 
-  <!-- Image Modal -->
-  <div class="modal-overlay" id="imageModal" onclick="closeImageModal()">
-    <img id="modalImg" src="" style="max-width: 90%; max-height: 90%; border-radius: 8px;" alt="Preview">
+  <!-- Image Lightbox Modal View -->
+  <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+    <img id="modalImg" src="" alt="Preview">
   </div>
 
   <script>
     Chart.register(ChartDataLabels);
-
-    const ADMIN_PASSWORD = "admin123";
-    let isAdmin = false;
 
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
@@ -623,103 +678,14 @@
     let currentYear = "2026";
     let currentMonthIndex = 0;
     let parcelsChartInstance = null;
-
-    // HARDCODED INITIAL DATA STORE (JANUARY 2026 EXACT DATA)
-    let defaultDataStore = {
-      "2026": {
-        "0": {
-          logs: [
-            { date: "2026-01-01", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-02", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-03", totalOrders: 4, cancelled: 0, returned: 0, dailyGross: 1000.14, remainingIncome: 1000.14 },
-            { date: "2026-01-04", totalOrders: 5, cancelled: 0, returned: 0, dailyGross: 1548.20, remainingIncome: 1548.20 },
-            { date: "2026-01-05", totalOrders: 93, cancelled: 4, returned: 3, dailyGross: 22856.62, remainingIncome: 21081.44 },
-            { date: "2026-01-06", totalOrders: 88, cancelled: 2, returned: 0, dailyGross: 21852.70, remainingIncome: 21322.70 },
-            { date: "2026-01-07", totalOrders: 83, cancelled: 2, returned: 2, dailyGross: 2055.67, remainingIncome: 19725.67 },
-            { date: "2026-01-08", totalOrders: 87, cancelled: 3, returned: 0, dailyGross: 21437.58, remainingIncome: 20660.38 },
-            { date: "2026-01-09", totalOrders: 97, cancelled: 2, returned: 3, dailyGross: 21729.36, remainingIncome: 20642.90 },
-            { date: "2026-01-10", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-11", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-12", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-13", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-14", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-15", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-16", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-17", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-18", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-19", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-20", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-21", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-22", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-23", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-24", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-25", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-26", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-27", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-28", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-29", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-30", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
-            { date: "2026-01-31", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 }
-          ],
-          discrepancy: 347287.56,
-          tiktokFees: 82076.32,
-          tiktokAdj: 37124.29,
-          adsExpense: 36000.00,
-          liveSeller: 45600.00,
-          images: []
-        }
-      }
-    };
-
-    let dataStore = JSON.parse(JSON.stringify(defaultDataStore));
+    let dataStore = {};
 
     window.onload = function() {
       loadFromLocalStorage();
       initChart();
       renderMonthNav();
       switchMonth(0);
-      applyRolePermissions();
     };
-
-    function toggleAdminAuth() {
-      if (isAdmin) {
-        isAdmin = false;
-        alert("Switched to Viewer Mode.");
-      } else {
-        const pass = prompt("Enter Admin Password:");
-        if (pass === ADMIN_PASSWORD) {
-          isAdmin = true;
-          alert("Admin Mode Activated!");
-        } else if (pass !== null) {
-          alert("Incorrect Password!");
-        }
-      }
-      applyRolePermissions();
-    }
-
-    function applyRolePermissions() {
-      const roleContainer = document.getElementById('roleBadgeContainer');
-      const loginBtn = document.getElementById('loginToggleBtn');
-      
-      if (isAdmin) {
-        roleContainer.innerHTML = `<span class="role-badge role-admin"><i class="fa-solid fa-user-shield"></i> Admin Mode</span>`;
-        loginBtn.innerHTML = `<i class="fa-solid fa-arrow-right-from-bracket"></i> Exit Admin`;
-      } else {
-        roleContainer.innerHTML = `<span class="role-badge role-viewer"><i class="fa-solid fa-eye"></i> Viewer Mode</span>`;
-        loginBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Admin Access`;
-      }
-
-      const allInputs = document.querySelectorAll('input');
-      allInputs.forEach(input => {
-        input.disabled = !isAdmin;
-      });
-
-      document.getElementById('saveDataBtn').style.display = isAdmin ? 'inline-block' : 'none';
-      document.getElementById('uploadBox').style.display = isAdmin ? 'block' : 'none';
-
-      renderTrackerTable();
-      renderImages();
-    }
 
     function parseRawNumber(str) {
       if (typeof str === 'number') return str;
@@ -733,17 +699,14 @@
     }
 
     function unformatInput(inputElem) {
-      if (!isAdmin) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = rawVal === 0 ? '' : rawVal;
     }
 
     function formatInputCurrency(inputElem, fieldName) {
-      if (!isAdmin) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(rawVal);
       
-      ensureDataStructure(currentYear, currentMonthIndex);
       const monthData = dataStore[currentYear][currentMonthIndex];
       monthData[fieldName] = rawVal;
       calculateSummary();
@@ -752,7 +715,7 @@
     function handleKeyNavigation(event, currentInput) {
       if (event.key === 'Tab' || event.key === 'Enter') {
         currentInput.blur();
-        const inputs = Array.from(document.querySelectorAll('input:not([disabled])'));
+        const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
         const currentIndex = inputs.indexOf(currentInput);
         
         if (event.shiftKey) {
@@ -796,7 +759,6 @@
       loadSummaryInputs();
       calculateSummary();
       renderImages();
-      applyRolePermissions();
     }
 
     function ensureDataStructure(year, monthIdx) {
@@ -825,6 +787,9 @@
           images: []
         };
       }
+      if (!dataStore[year][monthIdx].images) {
+        dataStore[year][monthIdx].images = [];
+      }
     }
 
     function renderTrackerTable() {
@@ -832,31 +797,29 @@
       const tbody = document.getElementById('trackerTableBody');
       tbody.innerHTML = '';
 
-      if(!monthData || !monthData.logs) return;
-
       monthData.logs.forEach((log, i) => {
         const remainingOrders = Math.max(0, log.totalOrders - log.cancelled - log.returned);
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${log.date}</td>
-          <td><input type="number" ${!isAdmin ? 'disabled' : ''} value="${log.totalOrders}" 
+          <td><input type="number" value="${log.totalOrders}" 
             onchange="updateLog(${i}, 'totalOrders', this.value)"
             onkeydown="handleKeyNavigation(event, this)"></td>
-          <td><input type="number" ${!isAdmin ? 'disabled' : ''} value="${log.cancelled}" 
+          <td><input type="number" value="${log.cancelled}" 
             onchange="updateLog(${i}, 'cancelled', this.value)"
             onkeydown="handleKeyNavigation(event, this)"></td>
-          <td><input type="number" ${!isAdmin ? 'disabled' : ''} value="${log.returned}" 
+          <td><input type="number" value="${log.returned}" 
             onchange="updateLog(${i}, 'returned', this.value)"
             onkeydown="handleKeyNavigation(event, this)"></td>
           <td>
-            <input type="text" ${!isAdmin ? 'disabled' : ''} value="${fmtCurrency(log.dailyGross)}" 
+            <input type="text" value="${fmtCurrency(log.dailyGross)}" 
               onfocus="unformatInput(this)" 
               onblur="updateLogCurrency(${i}, 'dailyGross', this)"
               onkeydown="handleKeyNavigation(event, this)">
           </td>
           <td style="font-weight: bold; color: var(--accent-green); text-align: center;">${remainingOrders}</td>
           <td>
-            <input type="text" ${!isAdmin ? 'disabled' : ''} value="${fmtCurrency(log.remainingIncome)}" 
+            <input type="text" value="${fmtCurrency(log.remainingIncome)}" 
               onfocus="unformatInput(this)" 
               onblur="updateLogCurrency(${i}, 'remainingIncome', this)"
               onkeydown="handleKeyNavigation(event, this)">
@@ -867,27 +830,26 @@
     }
 
     function updateLog(index, field, value) {
-      if (!isAdmin) return;
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
       calculateSummary();
     }
 
     function updateLogCurrency(index, field, inputElem) {
-      if (!isAdmin) return;
       const numVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(numVal);
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
+
       if (field === 'dailyGross' && dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome === 0) {
         dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome = numVal;
         renderTrackerTable();
       }
+
       calculateSummary();
     }
 
     function loadSummaryInputs() {
       const monthData = dataStore[currentYear][currentMonthIndex];
-      if (!monthData) return;
       document.getElementById('inputDiscrepancy').value = fmtCurrency(monthData.discrepancy);
       document.getElementById('inputTiktokFees').value = fmtCurrency(monthData.tiktokFees);
       document.getElementById('inputTiktokAdj').value = fmtCurrency(monthData.tiktokAdj);
@@ -897,7 +859,6 @@
 
     function calculateSummary() {
       const monthData = dataStore[currentYear][currentMonthIndex];
-      if (!monthData || !monthData.logs) return;
 
       let sumDailyGrossIncome = 0;
       let sumRemainingIncome = 0;
@@ -906,43 +867,48 @@
       let returnedVolume = 0;
 
       monthData.logs.forEach(log => {
-        sumDailyGrossIncome += log.dailyGross || 0;
-        sumRemainingIncome += log.remainingIncome || 0;
-        totalOrdersVolume += log.totalOrders || 0;
-        cancelledVolume += log.cancelled || 0;
-        returnedVolume += log.returned || 0;
+        sumDailyGrossIncome += log.dailyGross;
+        sumRemainingIncome += log.remainingIncome;
+        totalOrdersVolume += log.totalOrders;
+        cancelledVolume += log.cancelled;
+        returnedVolume += log.returned;
       });
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
-      
-      // Compute Totals
-      const totalGrossSales = (currentYear === "2026" && currentMonthIndex === 0) ? 360506.98 : sumRemainingIncome;
-      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0) + (monthData.adsExpense || 0);
+      const totalGrossSales = sumRemainingIncome;
+      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
       const remainingProduction = totalGrossSales - totalDeductions - (monthData.liveSeller || 0);
+
       const fmtPct = num => (totalGrossSales > 0 ? ((num / totalGrossSales) * 100).toFixed(2) : '0.00') + '%';
 
-      document.getElementById('kpiGrossSales').innerText = fmtCurrency(sumDailyGrossIncome > 0 ? sumDailyGrossIncome : 351528.63);
-      document.getElementById('kpiTotalOrders').innerText = (totalOrdersVolume > 0 ? totalOrdersVolume : 1567).toLocaleString();
-      document.getElementById('kpiRemainingOrders').innerText = (sumRemainingOrders > 0 ? sumRemainingOrders : 1536).toLocaleString();
-      document.getElementById('kpiCancelledVolume').innerText = (cancelledVolume > 0 ? cancelledVolume : 15).toLocaleString();
-      document.getElementById('kpiReturnedVolume').innerText = (returnedVolume > 0 ? returnedVolume : 16).toLocaleString();
+      // KPI Top Cards
+      document.getElementById('kpiGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
+      document.getElementById('kpiTotalOrders').innerText = totalOrdersVolume.toLocaleString();
+      document.getElementById('kpiRemainingOrders').innerText = sumRemainingOrders.toLocaleString();
+      document.getElementById('kpiCancelledVolume').innerText = cancelledVolume.toLocaleString();
+      document.getElementById('kpiReturnedVolume').innerText = returnedVolume.toLocaleString();
 
+      // Breakdown Table
       document.getElementById('sumGrossSales').innerText = fmtCurrency(totalGrossSales);
       document.getElementById('pctTiktokFees').innerText = fmtPct(monthData.tiktokFees);
       document.getElementById('pctTiktokAdj').innerText = fmtPct(monthData.tiktokAdj);
       document.getElementById('pctAdsExpense').innerText = fmtPct(monthData.adsExpense);
+      
       document.getElementById('sumTotalDeductions').innerText = fmtCurrency(totalDeductions);
       document.getElementById('pctTotalDeductions').innerText = fmtPct(totalDeductions);
+
       document.getElementById('pctLiveSeller').innerText = fmtPct(monthData.liveSeller);
+      
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
       document.getElementById('pctProduction').innerText = fmtPct(remainingProduction);
 
-      const safeVolume = (sumRemainingOrders > 0 ? sumRemainingOrders : 1536);
-      const tiktokPerOrder = (monthData.tiktokFees + monthData.tiktokAdj) / safeVolume;
+      // Financial Breakdown Metrics Bar
+      const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
+      const tiktokPerOrder = totalDeductions / safeVolume;
       const liveSellerPerOrder = (monthData.liveSeller || 0) / safeVolume;
       const productionPerOrder = remainingProduction / safeVolume;
 
-      document.getElementById('metricTotalOrders').innerText = safeVolume.toLocaleString();
+      document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('metricSalePerParcel').innerText = fmtCurrency(totalGrossSales / safeVolume);
       document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(tiktokPerOrder);
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
@@ -968,7 +934,10 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'top', labels: { color: '#9ca3af', font: { size: 10, weight: 'bold' } } },
+            legend: {
+              position: 'top',
+              labels: { color: '#9ca3af', font: { size: 10, weight: 'bold' } }
+            },
             datalabels: {
               color: '#ffffff',
               font: { weight: 'bold', size: 12 },
@@ -977,7 +946,8 @@
                 let dataArr = ctx.chart.data.datasets[0].data;
                 dataArr.map(data => { sum += data; });
                 if (sum === 0) return '0%';
-                return (value * 100 / sum).toFixed(0) + "%";
+                let percentage = (value * 100 / sum).toFixed(0) + "%";
+                return percentage;
               }
             }
           },
@@ -989,24 +959,24 @@
     function updateChart(tiktokVal, sellerVal, productionVal) {
       if (!parcelsChartInstance) return;
       const total = tiktokVal + sellerVal + productionVal;
-      parcelsChartInstance.data.datasets[0].data = total === 0 ? [0, 0, 0] : [tiktokVal, sellerVal, productionVal];
+      if (total === 0) {
+        parcelsChartInstance.data.datasets[0].data = [0, 0, 0];
+      } else {
+        parcelsChartInstance.data.datasets[0].data = [tiktokVal, sellerVal, productionVal];
+      }
       parcelsChartInstance.update();
     }
 
-    /* IMAGES / PROOF */
-    function triggerImageUpload() {
-      if (!isAdmin) return;
-      document.getElementById('imageUploadInput').click();
-    }
-
+    /* IMAGE UPLOAD LOGIC */
     function handleImageUpload(event) {
-      if (!isAdmin) return;
       const files = Array.from(event.target.files);
       const currentImages = dataStore[currentYear][currentMonthIndex].images;
+
       if (currentImages.length + files.length > 5) {
-        alert('Maximum of 5 images allowed!');
+        alert('Maximum of 5 images allowed per month!');
         return;
       }
+
       files.forEach(file => {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -1018,29 +988,28 @@
         };
         reader.readAsDataURL(file);
       });
+
       event.target.value = '';
     }
 
     function renderImages() {
-      const monthData = dataStore[currentYear] ? dataStore[currentYear][currentMonthIndex] : null;
-      const currentImages = monthData ? (monthData.images || []) : [];
+      const currentImages = dataStore[currentYear][currentMonthIndex].images || [];
       const container = document.getElementById('imageGridContainer');
       document.getElementById('imageCount').innerText = currentImages.length;
+      
       container.innerHTML = '';
-
       currentImages.forEach((imgSrc, index) => {
         const card = document.createElement('div');
         card.className = 'image-card';
         card.innerHTML = `
           <img src="${imgSrc}" onclick="viewImage('${imgSrc}')" alt="Attachment ${index + 1}">
-          ${isAdmin ? `<button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>` : ''}
+          <button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>
         `;
         container.appendChild(card);
       });
     }
 
     function deleteImage(index) {
-      if (!isAdmin) return;
       dataStore[currentYear][currentMonthIndex].images.splice(index, 1);
       renderImages();
       autoSaveToLocalStorage();
@@ -1055,38 +1024,69 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    /* SAFE LOCAL STORAGE FUNCTIONS */
     function autoSaveToLocalStorage() {
-      if (dataStore && Object.keys(dataStore).length > 0) {
-        localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
-      }
+      localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
     }
 
     function saveCurrentData() {
       autoSaveToLocalStorage();
-      alert('Data saved successfully!');
+      alert('Data and images successfully saved in Local Storage!');
     }
 
     function loadFromLocalStorage() {
       const saved = localStorage.getItem('unique_apparel_sales_data');
       if (saved) {
-        try { 
-          const parsed = JSON.parse(saved); 
-          if (parsed && typeof parsed === 'object') {
-            dataStore = parsed;
-          }
+        try {
+          dataStore = JSON.parse(saved);
         } catch(e) {
-          console.error("Failed to parse LocalStorage data", e);
+          console.error("Error loading local storage data", e);
         }
       }
     }
 
-    /* EXCEL EXPORT */
+    /* JSON IMPORT & EXPORT FOR SHARING */
+    function exportJSONData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataStore));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `Unique_Apparel_Data_Backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSONData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedData = JSON.parse(e.target.result);
+          if (importedData && typeof importedData === 'object') {
+            dataStore = importedData;
+            autoSaveToLocalStorage();
+            switchMonth(currentMonthIndex);
+            alert('Data and images successfully imported!');
+          } else {
+            alert('Invalid JSON file format.');
+          }
+        } catch (err) {
+          alert('Error reading the JSON file. Make sure it is a valid backup file.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    /* EXCEL EXPORT LOGIC */
     function exportToExcel() {
       const monthData = dataStore[currentYear][currentMonthIndex];
       const monthName = months[currentMonthIndex];
+
       let sheetData = [];
       sheetData.push([`SUMMARY OF ${monthName}`, "", "", "", "", "", ""]);
+
       sheetData.push([
         "DATE", "TOTAL ORDERS", "REMAINING ORDERS", "CANCEL", "RETURN", "INCOME", "RAMAINING INCOME", 
         "", 
@@ -1094,34 +1094,49 @@
       ]);
 
       let totOrders = 0, totRemOrders = 0, totCancel = 0, totReturn = 0, totIncome = 0, totRemIncome = 0;
-      if (monthData && monthData.logs) {
-        monthData.logs.forEach((log) => {
-          const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
-          totOrders += log.totalOrders;
-          totRemOrders += remOrd;
-          totCancel += log.cancelled;
-          totReturn += log.returned;
-          totIncome += log.dailyGross;
-          totRemIncome += log.remainingIncome;
 
-          const dObj = new Date(log.date);
-          const dateFormatted = `${dObj.getDate()}-${monthName.substring(0, 3)}-${currentYear.substring(2)}`;
-          sheetData.push([
-            dateFormatted, log.totalOrders || "", remOrd || 0, log.cancelled || "", log.returned || "", log.dailyGross || "", log.remainingIncome || 0
-          ]);
-        });
-      }
+      monthData.logs.forEach((log) => {
+        const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
+        
+        totOrders += log.totalOrders;
+        totRemOrders += remOrd;
+        totCancel += log.cancelled;
+        totReturn += log.returned;
+        totIncome += log.dailyGross;
+        totRemIncome += log.remainingIncome;
 
-      sheetData.push(["TOTAL", totOrders, totRemOrders, totCancel, totReturn, totIncome, totRemIncome]);
+        const dObj = new Date(log.date);
+        const dayStr = dObj.getDate();
+        const monShort = monthName.substring(0, 3);
+        const yrShort = currentYear.substring(2);
+        const dateFormatted = `${dayStr}-${monShort}-${yrShort}`;
 
-      const totalSales = totRemIncome > 0 ? totRemIncome : 360506.98;
-      const tiktokFees = monthData ? (monthData.tiktokFees || 0) : 0;
-      const tiktokAdj = monthData ? (monthData.tiktokAdj || 0) : 0;
-      const adsExp = monthData ? (monthData.adsExpense || 0) : 0;
-      const totalDeduction = tiktokFees + tiktokAdj + adsExp;
-      const liveSeller = monthData ? (monthData.liveSeller || 0) : 0;
+        let row = [
+          dateFormatted,
+          log.totalOrders || "",
+          remOrd || 0,
+          log.cancelled || "",
+          log.returned || "",
+          log.dailyGross ? log.dailyGross : "",
+          log.remainingIncome ? log.remainingIncome : 0
+        ];
+
+        sheetData.push(row);
+      });
+
+      sheetData.push([
+        "TOTAL", totOrders, totRemOrders, totCancel, totReturn, totIncome, totRemIncome
+      ]);
+
+      const totalSales = totRemIncome;
+      const tiktokFees = monthData.tiktokFees || 0;
+      const tiktokAdj = monthData.tiktokAdj || 0;
+      const adsExp = monthData.adsExpense || 0;
+      const totalDeduction = tiktokFees + tiktokAdj;
+      const liveSeller = monthData.liveSeller || 0;
       const remainingProd = totalSales - totalDeduction - liveSeller;
-      const discrepancy = monthData ? (monthData.discrepancy || 0) : 0;
+      const discrepancy = monthData.discrepancy || 0;
+
       const calcPct = val => totalSales > 0 ? (val / totalSales) : 0;
 
       const expenseRows = [
@@ -1141,7 +1156,28 @@
         sheetData[targetRowIdx].push(...expRow);
       });
 
+      const safeParcels = totRemOrders > 0 ? totRemOrders : 1;
+      const salesPerParcel = totalSales / safeParcels;
+      const tiktokPerParcel = totalDeduction / safeParcels;
+      const sellerPerParcel = liveSeller / safeParcels;
+      const prodPerParcel = remainingProd / safeParcels;
+
+      const parcelHeaderIdx = 10;
+      while (sheetData.length <= parcelHeaderIdx + 1) sheetData.push([]);
+
+      while (sheetData[parcelHeaderIdx].length < 8) sheetData[parcelHeaderIdx].push("");
+      sheetData[parcelHeaderIdx].push("TOTAL ORDERS", "SALES PER PARCELS", "TIKTOK", "LIVE SELLER", "PRODUCTION");
+
+      while (sheetData[parcelHeaderIdx + 1].length < 8) sheetData[parcelHeaderIdx + 1].push("");
+      sheetData[parcelHeaderIdx + 1].push(totRemOrders, salesPerParcel, tiktokPerParcel, sellerPerParcel, prodPerParcel);
+
       const ws = XLSX.utils.aoa_to_sheet(sheetData);
+
+      ws['!cols'] = [
+        { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 18 },
+        { wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }
+      ];
+
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, `${monthName}_Summary`);
       XLSX.writeFile(wb, `Sales_Summary_${monthName}_${currentYear}.xlsx`);
