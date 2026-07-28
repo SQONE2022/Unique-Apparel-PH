@@ -635,6 +635,7 @@
     let dataStore = {};
 
     window.onload = function() {
+      // Direct load from browser's local memory
       loadFromLocalStorage();
       initChart();
       renderMonthNav();
@@ -704,6 +705,7 @@
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(rawVal);
       
+      ensureDataStructure(currentYear, currentMonthIndex);
       const monthData = dataStore[currentYear][currentMonthIndex];
       monthData[fieldName] = rawVal;
       calculateSummary();
@@ -792,6 +794,8 @@
       const tbody = document.getElementById('trackerTableBody');
       tbody.innerHTML = '';
 
+      if(!monthData || !monthData.logs) return;
+
       monthData.logs.forEach((log, i) => {
         const remainingOrders = Math.max(0, log.totalOrders - log.cancelled - log.returned);
         const tr = document.createElement('tr');
@@ -845,6 +849,7 @@
 
     function loadSummaryInputs() {
       const monthData = dataStore[currentYear][currentMonthIndex];
+      if (!monthData) return;
       document.getElementById('inputDiscrepancy').value = fmtCurrency(monthData.discrepancy);
       document.getElementById('inputTiktokFees').value = fmtCurrency(monthData.tiktokFees);
       document.getElementById('inputTiktokAdj').value = fmtCurrency(monthData.tiktokAdj);
@@ -854,6 +859,8 @@
 
     function calculateSummary() {
       const monthData = dataStore[currentYear][currentMonthIndex];
+      if (!monthData || !monthData.logs) return;
+
       let sumDailyGrossIncome = 0;
       let sumRemainingIncome = 0;
       let totalOrdersVolume = 0;
@@ -861,11 +868,11 @@
       let returnedVolume = 0;
 
       monthData.logs.forEach(log => {
-        sumDailyGrossIncome += log.dailyGross;
-        sumRemainingIncome += log.remainingIncome;
-        totalOrdersVolume += log.totalOrders;
-        cancelledVolume += log.cancelled;
-        returnedVolume += log.returned;
+        sumDailyGrossIncome += log.dailyGross || 0;
+        sumRemainingIncome += log.remainingIncome || 0;
+        totalOrdersVolume += log.totalOrders || 0;
+        cancelledVolume += log.cancelled || 0;
+        returnedVolume += log.returned || 0;
       });
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
@@ -975,7 +982,8 @@
     }
 
     function renderImages() {
-      const currentImages = dataStore[currentYear][currentMonthIndex].images || [];
+      const monthData = dataStore[currentYear] ? dataStore[currentYear][currentMonthIndex] : null;
+      const currentImages = monthData ? (monthData.images || []) : [];
       const container = document.getElementById('imageGridContainer');
       document.getElementById('imageCount').innerText = currentImages.length;
       container.innerHTML = '';
@@ -1007,9 +1015,11 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    /* LOCAL STORAGE FUNCTIONS ONLY */
+    /* SAFE LOCAL STORAGE FUNCTIONS */
     function autoSaveToLocalStorage() {
-      localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
+      if (dataStore && Object.keys(dataStore).length > 0) {
+        localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
+      }
     }
 
     function saveCurrentData() {
@@ -1021,9 +1031,14 @@
       const saved = localStorage.getItem('unique_apparel_sales_data');
       if (saved) {
         try { 
-          dataStore = JSON.parse(saved); 
-          console.log("Loaded data successfully from LocalStorage!");
-        } catch(e) {}
+          const parsed = JSON.parse(saved); 
+          if (parsed && typeof parsed === 'object') {
+            dataStore = parsed;
+            console.log("Successfully recovered data from LocalStorage!");
+          }
+        } catch(e) {
+          console.error("Failed to parse LocalStorage data", e);
+        }
       }
     }
 
@@ -1040,32 +1055,34 @@
       ]);
 
       let totOrders = 0, totRemOrders = 0, totCancel = 0, totReturn = 0, totIncome = 0, totRemIncome = 0;
-      monthData.logs.forEach((log) => {
-        const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
-        totOrders += log.totalOrders;
-        totRemOrders += remOrd;
-        totCancel += log.cancelled;
-        totReturn += log.returned;
-        totIncome += log.dailyGross;
-        totRemIncome += log.remainingIncome;
+      if (monthData && monthData.logs) {
+        monthData.logs.forEach((log) => {
+          const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
+          totOrders += log.totalOrders;
+          totRemOrders += remOrd;
+          totCancel += log.cancelled;
+          totReturn += log.returned;
+          totIncome += log.dailyGross;
+          totRemIncome += log.remainingIncome;
 
-        const dObj = new Date(log.date);
-        const dateFormatted = `${dObj.getDate()}-${monthName.substring(0, 3)}-${currentYear.substring(2)}`;
-        sheetData.push([
-          dateFormatted, log.totalOrders || "", remOrd || 0, log.cancelled || "", log.returned || "", log.dailyGross || "", log.remainingIncome || 0
-        ]);
-      });
+          const dObj = new Date(log.date);
+          const dateFormatted = `${dObj.getDate()}-${monthName.substring(0, 3)}-${currentYear.substring(2)}`;
+          sheetData.push([
+            dateFormatted, log.totalOrders || "", remOrd || 0, log.cancelled || "", log.returned || "", log.dailyGross || "", log.remainingIncome || 0
+          ]);
+        });
+      }
 
       sheetData.push(["TOTAL", totOrders, totRemOrders, totCancel, totReturn, totIncome, totRemIncome]);
 
       const totalSales = totRemIncome;
-      const tiktokFees = monthData.tiktokFees || 0;
-      const tiktokAdj = monthData.tiktokAdj || 0;
-      const adsExp = monthData.adsExpense || 0;
+      const tiktokFees = monthData ? (monthData.tiktokFees || 0) : 0;
+      const tiktokAdj = monthData ? (monthData.tiktokAdj || 0) : 0;
+      const adsExp = monthData ? (monthData.adsExpense || 0) : 0;
       const totalDeduction = tiktokFees + tiktokAdj;
-      const liveSeller = monthData.liveSeller || 0;
+      const liveSeller = monthData ? (monthData.liveSeller || 0) : 0;
       const remainingProd = totalSales - totalDeduction - liveSeller;
-      const discrepancy = monthData.discrepancy || 0;
+      const discrepancy = monthData ? (monthData.discrepancy || 0) : 0;
       const calcPct = val => totalSales > 0 ? (val / totalSales) : 0;
 
       const expenseRows = [
