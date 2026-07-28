@@ -55,13 +55,30 @@
     .brand-container {
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
     }
 
-    .brand-logo {
-      height: 55px; /* Inayos ang laki para kumagay sa header */
-      width: auto;
-      object-fit: contain;
+    .brand-icon {
+      background: linear-gradient(135deg, #e11d48, #3b82f6, #10b981);
+      width: 45px;
+      height: 45px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      background: linear-gradient(90deg, #ef4444, #3b82f6, #eab308, #22c55e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .brand-text p {
@@ -293,11 +310,12 @@
       align-items: center;
     }
 
+    /* Action Buttons */
     .btn-action {
-      background: var(--accent-green);
+      background: var(--accent-blue);
       color: #0d1117;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 16px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
@@ -305,17 +323,28 @@
     }
 
     .btn-excel {
-      background: #107c41; /* Excel Green */
+      background: #107c41;
       color: #ffffff;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 16px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
       transition: opacity 0.2s;
     }
 
-    .btn-action:hover, .btn-excel:hover {
+    .btn-share {
+      background: var(--accent-orange);
+      color: #0d1117;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-action:hover, .btn-excel:hover, .btn-share:hover {
       opacity: 0.9;
     }
 
@@ -405,16 +434,22 @@
 </head>
 <body>
 
-  <!-- Header Section with Official Logo -->
+  <!-- EMBEDDED INITIAL DATA PLACEHOLDER -->
+  <script id="embedded-data" type="application/json">{}</script>
+
+  <!-- Header Section -->
   <header>
     <div class="brand-container">
-      <img src="Unique Apparel PH_Logo.png" alt="Unique Apparel PH Logo" class="brand-logo">
+      <div class="brand-icon">
+        <i class="fa-solid fa-shirt"></i>
+      </div>
       <div class="brand-text">
+        <div class="brand-title">UNIQUE APPAREL PH</div>
         <p>"Wear the fun, feel comfort" - Control Software System</p>
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
         <select id="yearSelect" onchange="changeYear()">
@@ -426,7 +461,8 @@
         </select>
       </div>
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
+      <button class="btn-share" onclick="downloadShareableHTML()"><i class="fa-solid fa-share-nodes"></i> Embed Data To HTML</button>
+      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Local</button>
     </div>
   </header>
 
@@ -646,7 +682,7 @@
     let dataStore = {};
 
     window.onload = function() {
-      loadFromLocalStorage();
+      loadInitialData();
       initChart();
       renderMonthNav();
       switchMonth(0);
@@ -677,21 +713,18 @@
       calculateSummary();
     }
 
-    // TAB & ENTER NAVIGATION HANDLER FOR INPUTS
     function handleKeyNavigation(event, currentInput) {
       if (event.key === 'Tab' || event.key === 'Enter') {
-        currentInput.blur(); // Triggers blur/formatting & calculation instantly
-        
-        // Find next input in DOM order
+        currentInput.blur();
         const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
         const currentIndex = inputs.indexOf(currentInput);
         
-        if (event.shiftKey) { // Shift + Tab -> Move backwards
+        if (event.shiftKey) {
           if (currentIndex > 0) {
             event.preventDefault();
             inputs[currentIndex - 1].focus();
           }
-        } else { // Tab or Enter -> Move forwards
+        } else {
           if (currentIndex < inputs.length - 1) {
             event.preventDefault();
             inputs[currentIndex + 1].focus();
@@ -882,7 +915,6 @@
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
-      // UPDATE GRAPH DYNAMICALLY
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
       autoSaveToLocalStorage();
     }
@@ -999,10 +1031,22 @@
 
     function saveCurrentData() {
       autoSaveToLocalStorage();
-      alert('Data and images successfully saved for Year ' + currentYear + ' (' + months[currentMonthIndex] + ')!');
+      alert('Data and images successfully saved in Local Storage!');
     }
 
-    function loadFromLocalStorage() {
+    function loadInitialData() {
+      // Priority 1: Embedded Data inside the HTML
+      const embeddedTag = document.getElementById('embedded-data');
+      if (embeddedTag && embeddedTag.textContent.trim() !== '{}') {
+        try {
+          dataStore = JSON.parse(embeddedTag.textContent);
+          return;
+        } catch(e) {
+          console.error("Error parsing embedded data", e);
+        }
+      }
+
+      // Priority 2: LocalStorage fallback
       const saved = localStorage.getItem('unique_apparel_sales_data');
       if (saved) {
         try {
@@ -1011,6 +1055,26 @@
           console.error("Error loading local storage data", e);
         }
       }
+    }
+
+    /* DOWNLOAD SHAREABLE HTML FILE WITH EMBEDDED DATA */
+    function downloadShareableHTML() {
+      const currentHTML = document.documentElement.outerHTML;
+      const jsonStr = JSON.stringify(dataStore);
+      
+      // Replace embedded-data content
+      const updatedHTML = currentHTML.replace(
+        /<script id="embedded-data" type="application\/json">[\s\S]*?<\/script>/,
+        `<script id="embedded-data" type="application/json">${jsonStr}<\/script>`
+      );
+
+      const blob = new Blob([updatedHTML], { type: 'text/html;charset=utf-8' });
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.href = URL.createObjectURL(blob);
+      downloadAnchor.download = `Unique_Apparel_Dashboard_With_Data.html`;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
     }
 
     /* EXCEL EXPORT LOGIC */
