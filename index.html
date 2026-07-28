@@ -1098,25 +1098,40 @@
     /* --- JSONBIN CLOUD STORAGE INTEGRATION --- */
 
     async function loadFromLocalStorage() {
-      try {
+    try {
         const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          method: 'GET',
-          headers: {
-            'X-Master-Key': MASTER_KEY
-          }
+            method: 'GET',
+            headers: {
+                'X-Master-Key': MASTER_KEY
+            }
         });
 
         if (response.ok) {
-          const result = await response.json();
-          if (result.record && typeof result.record === 'object' && !result.record.status) {
-            dataStore = result.record;
-            console.log("Cloud data loaded successfully!");
-          }
+            const result = await response.json();
+            
+            // KUNG WALANG DATA SA CLOUD (OR ZERO LAHAT), KUNIN YUNG MGA LUMANG NAKA-SAVE SA BROWSER
+            if (result.record && Object.keys(result.record).length > 0 && result.record.salesData) {
+                salesData = result.record.salesData || salesData;
+                financialData = result.record.financialData || financialData;
+            } else {
+                const localSales = localStorage.getItem('salesData');
+                const localFinancial = localStorage.getItem('financialData');
+                if (localSales) salesData = JSON.parse(localSales);
+                if (localFinancial) financialData = JSON.parse(localFinancial);
+            }
         }
-      } catch (error) {
-        console.error("Error loading data from JSONBin:", error);
-      }
+    } catch (error) {
+        console.error("Error loading data from Cloud:", error);
+        // Fallback sa browser storage kung nag-error ang network
+        const localSales = localStorage.getItem('salesData');
+        const localFinancial = localStorage.getItem('financialData');
+        if (localSales) salesData = JSON.parse(localSales);
+        if (localFinancial) financialData = JSON.parse(localFinancial);
     }
+
+    renderTable();
+    updateFinancialUI();
+}
 
     async function saveCurrentData() {
       if (!isAdminMode) {
