@@ -661,7 +661,7 @@
     ];
 
     let currentYear = "2026";
-    let currentMonthIndex = 6; // Default to JULY
+    let currentMonthIndex = 0; // Default to JANUARY
     let parcelsChartInstance = null;
 
     // COMPLETE DATABANK FOR JANUARY TO JULY 2026 FROM YOUR EXCEL FILES
@@ -928,7 +928,7 @@
       loadInitialData();
       initChart();
       renderMonthNav();
-      switchMonth(6); // Default to July
+      switchMonth(0); // Starts on January
     };
 
     function parseRawNumber(str) {
@@ -1117,7 +1117,12 @@
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
       const totalGrossSales = sumRemainingIncome;
-      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0) + (monthData.adsExpense || 0);
+
+      // REVISED FORMULAS:
+      // TOTAL DEDUCTION = TIKTOK FEES + TIKTOK ADJUSTMENT
+      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
+      
+      // REMAINING FOR PRODUCTION = TOTAL SALES - TOTAL DEDUCTION - LIVE SELLER PAYROLL
       const remainingProduction = totalGrossSales - totalDeductions - (monthData.liveSeller || 0);
 
       const fmtPct = num => (totalGrossSales > 0 ? ((num / totalGrossSales) * 100).toFixed(2) : '0.00') + '%';
@@ -1337,7 +1342,9 @@
       const tiktokFees = monthData.tiktokFees || 0;
       const tiktokAdj = monthData.tiktokAdj || 0;
       const adsExp = monthData.adsExpense || 0;
-      const totalDeduction = tiktokFees + tiktokAdj + adsExp;
+      
+      // Updated Total Deduction for Excel Export as well
+      const totalDeduction = tiktokFees + tiktokAdj;
       const liveSeller = monthData.liveSeller || 0;
       const remainingProd = totalSales - totalDeduction - liveSeller;
       const discrepancy = monthData.discrepancy || 0;
