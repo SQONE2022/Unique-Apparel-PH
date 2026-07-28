@@ -382,14 +382,6 @@
       justify-content: center;
       align-items: center;
     }
-    /* Sync Status Indicator */
-    .sync-status {
-      font-size: 0.8rem;
-      color: var(--accent-blue);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
   </style>
 </head>
 <body>
@@ -407,9 +399,6 @@
       <div id="roleBadgeContainer" style="margin-left: 15px;">
         <span class="role-badge role-viewer"><i class="fa-solid fa-eye"></i> Viewer Mode</span>
       </div>
-      <div class="sync-status" id="syncStatus">
-        <i class="fa-solid fa-cloud"></i> Ready
-      </div>
     </div>
     
     <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
@@ -425,7 +414,7 @@
       </div>
 
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-action" id="saveDataBtn" onclick="saveDataToCloud()"><i class="fa-solid fa-cloud-arrow-up"></i> Save to Cloud</button>
+      <button class="btn-action" id="saveDataBtn" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
       <button class="btn-auth" id="loginToggleBtn" onclick="toggleAdminAuth()"><i class="fa-solid fa-lock"></i> Admin Access</button>
     </div>
   </header>
@@ -632,10 +621,7 @@
   <script>
     Chart.register(ChartDataLabels);
 
-    // 🔴 PALITAN ANG LINK NA ITO NG GOOGLE APPS SCRIPT WEB APP URL MO 🔴
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwD61IgbfqzqAzVQrGlJP_prT-CgW-YHBvgdyZkrI90qeukug9gTaJ1-7uaNr7CL-C_/exec";
-
-    const ADMIN_PASSWORD = "admin123";
+    const ADMIN_PASSWORD = "admin123"; // PASSWORD SA ADMIN
     let isAdmin = false;
 
     const months = [
@@ -649,56 +635,12 @@
     let dataStore = {};
 
     window.onload = function() {
+      loadFromLocalStorage();
       initChart();
       renderMonthNav();
-      loadDataFromCloud();
+      switchMonth(0);
       applyRolePermissions();
     };
-
-    function updateSyncStatus(statusText, color = "var(--accent-blue)") {
-      const syncElem = document.getElementById('syncStatus');
-      syncElem.style.color = color;
-      syncElem.innerHTML = `<i class="fa-solid fa-cloud"></i> ${statusText}`;
-    }
-
-    /* GOOGLE SHEETS API CONNECTIONS */
-    function loadDataFromCloud() {
-      updateSyncStatus("Fetching Cloud Data...", "var(--accent-orange)");
-      fetch(GOOGLE_SCRIPT_URL)
-        .then(response => response.json())
-        .then(data => {
-          if (data && Object.keys(data).length > 0) {
-            dataStore = data;
-          }
-          switchMonth(currentMonthIndex);
-          updateSyncStatus("Live Synced", "var(--accent-green)");
-        })
-        .catch(err => {
-          console.error("Error loading data from Cloud:", err);
-          updateSyncStatus("Sync Error", "var(--accent-red)");
-          switchMonth(currentMonthIndex);
-        });
-    }
-
-    function saveDataToCloud() {
-      if (!isAdmin) return;
-      updateSyncStatus("Saving to Cloud...", "var(--accent-orange)");
-      fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataStore)
-      })
-      .then(() => {
-        updateSyncStatus("Saved to Cloud!", "var(--accent-green)");
-        alert("Data successfully saved to Cloud!");
-      })
-      .catch(err => {
-        console.error("Error saving data:", err);
-        updateSyncStatus("Save Failed", "var(--accent-red)");
-        alert("Failed to save data. Check internet connection.");
-      });
-    }
 
     function toggleAdminAuth() {
       if (isAdmin) {
@@ -728,11 +670,13 @@
         loginBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Admin Access`;
       }
 
+      // Enable or Disable Inputs
       const allInputs = document.querySelectorAll('input');
       allInputs.forEach(input => {
         input.disabled = !isAdmin;
       });
 
+      // Show/Hide buttons based on Role
       document.getElementById('saveDataBtn').style.display = isAdmin ? 'inline-block' : 'none';
       document.getElementById('uploadBox').style.display = isAdmin ? 'block' : 'none';
 
@@ -963,6 +907,7 @@
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
+      autoSaveToLocalStorage();
     }
 
     function initChart() {
@@ -1026,6 +971,7 @@
           if (currentImages.length < 5) {
             currentImages.push(e.target.result);
             renderImages();
+            autoSaveToLocalStorage();
           }
         };
         reader.readAsDataURL(file);
@@ -1054,6 +1000,7 @@
       if (!isAdmin) return;
       dataStore[currentYear][currentMonthIndex].images.splice(index, 1);
       renderImages();
+      autoSaveToLocalStorage();
     }
 
     function viewImage(src) {
@@ -1063,6 +1010,23 @@
 
     function closeImageModal() {
       document.getElementById('imageModal').style.display = 'none';
+    }
+
+    /* LOCAL STORAGE */
+    function autoSaveToLocalStorage() {
+      localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
+    }
+
+    function saveCurrentData() {
+      autoSaveToLocalStorage();
+      alert('Data saved successfully!');
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('unique_apparel_sales_data');
+      if (saved) {
+        try { dataStore = JSON.parse(saved); } catch(e) {}
+      }
     }
 
     /* EXCEL EXPORT */
