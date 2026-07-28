@@ -700,6 +700,10 @@
     // SECURITY PIN FOR 2 MAIN CONTROLLERS
     const ADMIN_PASSKEY = "1234"; // Pwedeng palitan ng kahit anong PIN/Password mo
 
+    // JSONBin Cloud Storage Config
+    const BIN_ID = "6a6800f6da38895dfe993dd4";
+    const MASTER_KEY = "$2a$10$h0.O9OZvBiu9gcFeyEdgPO9.n7WLISFdcXaGzzEKJ/fEmEPUVf4mG"; // <-- I-PASTE DITO ANG MASTER KEY
+
     let isAdminMode = false;
 
     const months = [
@@ -712,8 +716,8 @@
     let parcelsChartInstance = null;
     let dataStore = {};
 
-    window.onload = function() {
-      loadFromLocalStorage();
+    window.onload = async function() {
+      await loadFromLocalStorage();
       initChart();
       renderMonthNav();
       switchMonth(0);
@@ -983,7 +987,6 @@
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
-      if (isAdminMode) autoSaveToLocalStorage();
     }
 
     function initChart() {
@@ -1052,7 +1055,6 @@
           if (currentImages.length < 5) {
             currentImages.push(e.target.result);
             renderImages();
-            autoSaveToLocalStorage();
           }
         };
         reader.readAsDataURL(file);
@@ -1082,7 +1084,6 @@
       if (!isAdminMode) return;
       dataStore[currentYear][currentMonthIndex].images.splice(index, 1);
       renderImages();
-      autoSaveToLocalStorage();
     }
 
     function viewImage(src) {
@@ -1094,28 +1095,58 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    function autoSaveToLocalStorage() {
-      localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
+    /* --- JSONBIN CLOUD STORAGE INTEGRATION --- */
+
+    async function loadFromLocalStorage() {
+      try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          method: 'GET',
+          headers: {
+            'X-Master-Key': MASTER_KEY
+          }
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.record && typeof result.record === 'object' && !result.record.status) {
+            dataStore = result.record;
+            console.log("Cloud data loaded successfully!");
+          }
+        }
+      } catch (error) {
+        console.error("Error loading data from JSONBin:", error);
+      }
     }
 
-    function saveCurrentData() {
+    async function saveCurrentData() {
       if (!isAdminMode) {
         alert("Viewers cannot save data.");
         return;
       }
-      autoSaveToLocalStorage();
-      alert('Data successfully saved for Year ' + currentYear + ' (' + months[currentMonthIndex] + ')!');
+
+      try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': MASTER_KEY
+          },
+          body: JSON.stringify(dataStore)
+        });
+
+        if (response.ok) {
+          alert(`Data successfully saved to Cloud for ${months[currentMonthIndex]} ${currentYear}!`);
+        } else {
+          alert("Failed to save data to cloud. Check your API Key.");
+        }
+      } catch (error) {
+        console.error("Error saving data to JSONBin:", error);
+        alert("Network error while saving data.");
+      }
     }
 
-    function loadFromLocalStorage() {
-      const saved = localStorage.getItem('unique_apparel_sales_data');
-      if (saved) {
-        try {
-          dataStore = JSON.parse(saved);
-        } catch(e) {
-          console.error("Error loading local storage data", e);
-        }
-      }
+    function autoSaveToLocalStorage() {
+      // Disabled local auto-save; Admin must click 'Save Data' to update cloud
     }
 
     /* EXCEL EXPORT LOGIC */
