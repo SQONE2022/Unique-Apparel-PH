@@ -332,17 +332,7 @@
       transition: opacity 0.2s;
     }
 
-    .btn-admin {
-      background: #3b82f6;
-      color: #ffffff;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn-action:hover, .btn-excel:hover, .btn-admin:hover {
+    .btn-action:hover, .btn-excel:hover {
       opacity: 0.9;
     }
 
@@ -428,36 +418,11 @@
       max-height: 90%;
       border-radius: 8px;
     }
-
-    /* ======================================================== */
-    /* VIEWER READ-ONLY LOCK STYLES (DEFAULT FOR PUBLIC) */
-    /* ======================================================== */
-    body.is-viewer input {
-      pointer-events: none !important;
-      background: transparent !important;
-      border: 1px solid transparent !important;
-      color: var(--text-main) !important;
-      font-weight: 600;
-    }
-
-    body.is-viewer .admin-only {
-      display: none !important;
-    }
-
-    .status-badge {
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-    .badge-viewer { background: #374151; color: #9ca3af; }
-    .badge-admin { background: #059669; color: #ffffff; }
   </style>
 </head>
-<body class="is-viewer">
+<body>
 
-  <!-- Header Section -->
+  <!-- Header Section (Pure CSS Styling) -->
   <header>
     <div class="brand-container">
       <div class="brand-icon">
@@ -469,13 +434,7 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-      <span id="roleBadge" class="status-badge badge-viewer"><i class="fa-solid fa-eye"></i> Viewer Mode</span>
-
-      <button id="adminToggleBtn" class="btn-admin" onclick="toggleAdminAccess()">
-        <i class="fa-solid fa-lock"></i> Admin Access
-      </button>
-
+    <div style="display: flex; gap: 10px; align-items: center;">
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
         <select id="yearSelect" onchange="changeYear()">
@@ -486,9 +445,8 @@
           <option value="2028">2028</option>
         </select>
       </div>
-
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-action admin-only" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
+      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Data</button>
     </div>
   </header>
 
@@ -546,28 +504,14 @@
           </table>
         </div>
       </div>
-       <!-- MONTH TABS NAVIGATION -->
-<div class="month-tabs-container" style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
-    <button class="month-btn active" onclick="selectMonth('JANUARY')">JANUARY</button>
-    <button class="month-btn" onclick="selectMonth('FEBRUARY')">FEBRUARY</button>
-    <button class="month-btn" onclick="selectMonth('MARCH')">MARCH</button>
-    <button class="month-btn" onclick="selectMonth('APRIL')">APRIL</button>
-    <button class="month-btn" onclick="selectMonth('MAY')">MAY</button>
-    <button class="month-btn" onclick="selectMonth('JUNE')">JUNE</button>
-    <button class="month-btn" onclick="selectMonth('JULY')">JULY</button>
-    <button class="month-btn" onclick="selectMonth('AUGUST')">AUGUST</button>
-    <button class="month-btn" onclick="selectMonth('SEPTEMBER')">SEPTEMBER</button>
-    <button class="month-btn" onclick="selectMonth('OCTOBER')">OCTOBER</button>
-    <button class="month-btn" onclick="selectMonth('NOVEMBER')">NOVEMBER</button>
-    <button class="month-btn" onclick="selectMonth('DECEMBER')">DECEMBER</button>
-</div>
+
       <!-- MONTHLY ATTACHMENTS CARD -->
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-images" style="color: var(--accent-blue);"></i>
           MONTHLY PROOF & ATTACHMENTS (<span id="imageCount">0</span>/5)
         </div>
-        <div class="upload-box admin-only" onclick="document.getElementById('imageUploadInput').click()">
+        <div class="upload-box" onclick="document.getElementById('imageUploadInput').click()">
           <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 5px;"></i>
           <p style="font-size: 0.85rem; color: var(--text-muted);">Click or Drag images to upload (Max 5)</p>
           <input type="file" id="imageUploadInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
@@ -711,15 +655,6 @@
   <script>
     Chart.register(ChartDataLabels);
 
-    // SECURITY PIN FOR 2 MAIN CONTROLLERS
-    const ADMIN_PASSKEY = "1234"; // Pwedeng palitan ng kahit anong PIN/Password mo
-
-    // JSONBin Cloud Storage Config
-    const BIN_ID = "6a6800f6da38895dfe993dd4";
-    const MASTER_KEY = "$2a$10$h0.O9OZvBiu9gcFeyEdgPO9.n7WLISFdcXaGzzEKJ/fEmEPUVf4mG"; // <-- I-PASTE DITO ANG MASTER KEY
-
-    let isAdminMode = false;
-
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
       "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
@@ -730,43 +665,12 @@
     let parcelsChartInstance = null;
     let dataStore = {};
 
-    window.onload = async function() {
-      await loadFromLocalStorage();
+    window.onload = function() {
+      loadFromLocalStorage();
       initChart();
       renderMonthNav();
       switchMonth(0);
     };
-
-    /* ADMIN ACCESS LOCK / UNLOCK SYSTEM */
-    function toggleAdminAccess() {
-      if (!isAdminMode) {
-        const key = prompt("Enter Main Handle Passkey:");
-        if (key === ADMIN_PASSKEY) {
-          isAdminMode = true;
-          document.body.classList.remove('is-viewer');
-          
-          const badge = document.getElementById('roleBadge');
-          badge.className = "status-badge badge-admin";
-          badge.innerHTML = '<i class="fa-solid fa-user-shield"></i> Admin Handle';
-          
-          document.getElementById('adminToggleBtn').innerHTML = '<i class="fa-solid fa-lock-open"></i> Lock Admin';
-          renderImages();
-          alert("Admin Access Granted! You can now edit and save changes.");
-        } else if (key !== null) {
-          alert("Incorrect Passkey! Access denied.");
-        }
-      } else {
-        isAdminMode = false;
-        document.body.classList.add('is-viewer');
-        
-        const badge = document.getElementById('roleBadge');
-        badge.className = "status-badge badge-viewer";
-        badge.innerHTML = '<i class="fa-solid fa-eye"></i> Viewer Mode';
-        
-        document.getElementById('adminToggleBtn').innerHTML = '<i class="fa-solid fa-lock"></i> Admin Access';
-        renderImages();
-      }
-    }
 
     function parseRawNumber(str) {
       if (typeof str === 'number') return str;
@@ -780,13 +684,11 @@
     }
 
     function unformatInput(inputElem) {
-      if (!isAdminMode) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = rawVal === 0 ? '' : rawVal;
     }
 
     function formatInputCurrency(inputElem, fieldName) {
-      if (!isAdminMode) return;
       const rawVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(rawVal);
       
@@ -796,7 +698,6 @@
     }
 
     function handleKeyNavigation(event, currentInput) {
-      if (!isAdminMode) return;
       if (event.key === 'Tab' || event.key === 'Enter') {
         currentInput.blur();
         const inputs = Array.from(document.querySelectorAll('input[type="text"], input[type="number"]'));
@@ -914,14 +815,12 @@
     }
 
     function updateLog(index, field, value) {
-      if (!isAdminMode) return;
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
       calculateSummary();
     }
 
     function updateLogCurrency(index, field, inputElem) {
-      if (!isAdminMode) return;
       const numVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(numVal);
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
@@ -1001,6 +900,7 @@
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
 
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
+      autoSaveToLocalStorage();
     }
 
     function initChart() {
@@ -1054,7 +954,6 @@
 
     /* IMAGE UPLOAD LOGIC */
     function handleImageUpload(event) {
-      if (!isAdminMode) return;
       const files = Array.from(event.target.files);
       const currentImages = dataStore[currentYear][currentMonthIndex].images;
 
@@ -1069,6 +968,7 @@
           if (currentImages.length < 5) {
             currentImages.push(e.target.result);
             renderImages();
+            autoSaveToLocalStorage();
           }
         };
         reader.readAsDataURL(file);
@@ -1088,16 +988,16 @@
         card.className = 'image-card';
         card.innerHTML = `
           <img src="${imgSrc}" onclick="viewImage('${imgSrc}')" alt="Attachment ${index + 1}">
-          ${isAdminMode ? `<button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>` : ''}
+          <button class="delete-img-btn" onclick="deleteImage(${index})"><i class="fa-solid fa-xmark"></i></button>
         `;
         container.appendChild(card);
       });
     }
 
     function deleteImage(index) {
-      if (!isAdminMode) return;
       dataStore[currentYear][currentMonthIndex].images.splice(index, 1);
       renderImages();
+      autoSaveToLocalStorage();
     }
 
     function viewImage(src) {
@@ -1109,73 +1009,24 @@
       document.getElementById('imageModal').style.display = 'none';
     }
 
-    /* --- JSONBIN CLOUD STORAGE INTEGRATION --- */
-
-    async function loadFromLocalStorage() {
-    try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            method: 'GET',
-            headers: {
-                'X-Master-Key': MASTER_KEY
-            }
-        });
-
-        if (response.ok) {
-            const result = await response.json();
-            
-            // KUNG WALANG DATA SA CLOUD (OR ZERO LAHAT), KUNIN YUNG MGA LUMANG NAKA-SAVE SA BROWSER
-            if (result.record && Object.keys(result.record).length > 0 && result.record.salesData) {
-                salesData = result.record.salesData || salesData;
-                financialData = result.record.financialData || financialData;
-            } else {
-                const localSales = localStorage.getItem('salesData');
-                const localFinancial = localStorage.getItem('financialData');
-                if (localSales) salesData = JSON.parse(localSales);
-                if (localFinancial) financialData = JSON.parse(localFinancial);
-            }
-        }
-    } catch (error) {
-        console.error("Error loading data from Cloud:", error);
-        // Fallback sa browser storage kung nag-error ang network
-        const localSales = localStorage.getItem('salesData');
-        const localFinancial = localStorage.getItem('financialData');
-        if (localSales) salesData = JSON.parse(localSales);
-        if (localFinancial) financialData = JSON.parse(localFinancial);
-    }
-
-    renderTable();
-    updateFinancialUI();
-}
-
-    async function saveCurrentData() {
-      if (!isAdminMode) {
-        alert("Viewers cannot save data.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Master-Key': MASTER_KEY
-          },
-          body: JSON.stringify(dataStore)
-        });
-
-        if (response.ok) {
-          alert(`Data successfully saved to Cloud for ${months[currentMonthIndex]} ${currentYear}!`);
-        } else {
-          alert("Failed to save data to cloud. Check your API Key.");
-        }
-      } catch (error) {
-        console.error("Error saving data to JSONBin:", error);
-        alert("Network error while saving data.");
-      }
-    }
-
     function autoSaveToLocalStorage() {
-      // Disabled local auto-save; Admin must click 'Save Data' to update cloud
+      localStorage.setItem('unique_apparel_sales_data', JSON.stringify(dataStore));
+    }
+
+    function saveCurrentData() {
+      autoSaveToLocalStorage();
+      alert('Data and images successfully saved for Year ' + currentYear + ' (' + months[currentMonthIndex] + ')!');
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('unique_apparel_sales_data');
+      if (saved) {
+        try {
+          dataStore = JSON.parse(saved);
+        } catch(e) {
+          console.error("Error loading local storage data", e);
+        }
+      }
     }
 
     /* EXCEL EXPORT LOGIC */
