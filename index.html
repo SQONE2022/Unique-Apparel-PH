@@ -6,7 +6,7 @@
   <title>Unique Apparel PH - Sales Report Dashboard</title>
   <!-- Chart.js for Visualization -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Chart.js Datalabels Plugin for Percentage inside slices -->
+  <!-- Chart.js Datalabels Plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -323,7 +323,7 @@
     }
 
     .btn-excel {
-      background: #107c41; /* Excel Green */
+      background: #107c41;
       color: #ffffff;
       border: none;
       padding: 10px 16px;
@@ -333,18 +333,7 @@
       transition: opacity 0.2s;
     }
 
-    .btn-json {
-      background: var(--accent-purple);
-      color: #0d1117;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-
-    .btn-action:hover, .btn-excel:hover, .btn-json:hover {
+    .btn-action:hover, .btn-excel:hover {
       opacity: 0.9;
     }
 
@@ -411,7 +400,6 @@
       z-index: 10;
     }
 
-    /* Image Lightbox Modal */
     .image-modal {
       display: none;
       position: fixed;
@@ -446,7 +434,7 @@
       </div>
     </div>
 
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+    <div style="display: flex; gap: 12px; align-items: center;">
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
         <select id="yearSelect" onchange="changeYear()">
@@ -458,10 +446,7 @@
         </select>
       </div>
       <button class="btn-excel" onclick="exportToExcel()"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
-      <button class="btn-json" onclick="exportJSONData()"><i class="fa-solid fa-download"></i> Backup Data</button>
-      <button class="btn-json" onclick="document.getElementById('importJsonInput').click()"><i class="fa-solid fa-upload"></i> Restore Data</button>
-      <input type="file" id="importJsonInput" accept=".json" style="display: none;" onchange="importJSONData(event)">
-      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Local</button>
+      <button class="btn-action" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> Save Local Storage</button>
     </div>
   </header>
 
@@ -546,15 +531,15 @@
         <table class="summary-table">
           <thead>
             <tr>
-              <th>DESCRIPTON</th>
+              <th>DESCRIPTION</th>
               <th>AMOUNT</th>
               <th>PERCENTAGE</th>
-              <th>DISCREPENCY</th>
+              <th>DISCREPANCY</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>TOTAL GROSS SALES</strong></td>
+              <td><strong>TOTAL SALES</strong></td>
               <td><span id="sumGrossSales">₱0.00</span></td>
               <td>100%</td>
               <td>
@@ -598,13 +583,13 @@
               <td></td>
             </tr>
             <tr style="border-top: 1px solid var(--border-color); font-weight: bold;">
-              <td>TOTAL DEDUCTIONS</td>
+              <td>TOTAL DEDUCTION</td>
               <td><span id="sumTotalDeductions" style="color: var(--accent-red);">₱0.00</span></td>
               <td><span id="pctTotalDeductions">0%</span></td>
               <td></td>
             </tr>
             <tr>
-              <td>LIVE SELLER</td>
+              <td>LIVE SELLER PAYROLL</td>
               <td>
                 <input type="text" id="inputLiveSeller" value="₱0.00" 
                   onfocus="unformatInput(this)" 
@@ -630,7 +615,7 @@
             <span id="metricTotalOrders" style="color: var(--text-main);">0</span>
           </div>
           <div class="metric-item">
-            <label>SALE PER PARCEL</label>
+            <label>SALES PER PARCEL</label>
             <span id="metricSalePerParcel" style="color: var(--accent-blue);">₱0.00</span>
           </div>
           <div class="metric-item">
@@ -676,15 +661,274 @@
     ];
 
     let currentYear = "2026";
-    let currentMonthIndex = 0;
+    let currentMonthIndex = 6; // Default to JULY
     let parcelsChartInstance = null;
-    let dataStore = {};
+
+    // COMPLETE DATABANK FOR JANUARY TO JULY 2026 FROM YOUR EXCEL FILES
+    let dataStore = {
+      "2026": {
+        // JANUARY
+        0: {
+          discrepancy: 347287.56, tiktokFees: 82076.32, tiktokAdj: 37124.29, adsExpense: 36000.00, liveSeller: 45600.00, images: [],
+          logs: [
+            { date: "2026-01-01", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-01-02", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-01-03", totalOrders: 4, cancelled: 0, returned: 0, dailyGross: 1000.14, remainingIncome: 1000.14 },
+            { date: "2026-01-04", totalOrders: 5, cancelled: 0, returned: 0, dailyGross: 1548.20, remainingIncome: 1548.20 },
+            { date: "2026-01-05", totalOrders: 93, cancelled: 4, returned: 3, dailyGross: 22856.62, remainingIncome: 21081.44 },
+            { date: "2026-01-06", totalOrders: 88, cancelled: 2, returned: 0, dailyGross: 21852.70, remainingIncome: 21322.70 },
+            { date: "2026-01-07", totalOrders: 83, cancelled: 2, returned: 2, dailyGross: 2055.67, remainingIncome: 19725.67 },
+            { date: "2026-01-08", totalOrders: 87, cancelled: 3, returned: 0, dailyGross: 21437.58, remainingIncome: 20660.38 },
+            { date: "2026-01-09", totalOrders: 97, cancelled: 2, returned: 3, dailyGross: 21729.36, remainingIncome: 20642.90 },
+            { date: "2026-01-10", totalOrders: 62, cancelled: 1, returned: 1, dailyGross: 14605.87, remainingIncome: 14139.06 },
+            { date: "2026-01-11", totalOrders: 30, cancelled: 0, returned: 0, dailyGross: 6923.99, remainingIncome: 6923.99 },
+            { date: "2026-01-12", totalOrders: 48, cancelled: 0, returned: 1, dailyGross: 11206.32, remainingIncome: 10979.63 },
+            { date: "2026-01-13", totalOrders: 49, cancelled: 0, returned: 0, dailyGross: 11356.58, remainingIncome: 11356.58 },
+            { date: "2026-01-14", totalOrders: 53, cancelled: 0, returned: 0, dailyGross: 9166.48, remainingIncome: 9166.48 },
+            { date: "2026-01-15", totalOrders: 63, cancelled: 1, returned: 0, dailyGross: 12245.40, remainingIncome: 11960.20 },
+            { date: "2026-01-16", totalOrders: 73, cancelled: 0, returned: 0, dailyGross: 14603.73, remainingIncome: 14603.73 },
+            { date: "2026-01-17", totalOrders: 63, cancelled: 0, returned: 0, dailyGross: 14282.36, remainingIncome: 14282.36 },
+            { date: "2026-01-18", totalOrders: 21, cancelled: 0, returned: 0, dailyGross: 4631.03, remainingIncome: 4631.03 },
+            { date: "2026-01-19", totalOrders: 34, cancelled: 0, returned: 0, dailyGross: 7753.70, remainingIncome: 7753.70 },
+            { date: "2026-01-20", totalOrders: 65, cancelled: 0, returned: 0, dailyGross: 15908.22, remainingIncome: 15908.22 },
+            { date: "2026-01-21", totalOrders: 64, cancelled: 0, returned: 5, dailyGross: 17351.95, remainingIncome: 14202.96 },
+            { date: "2026-01-22", totalOrders: 66, cancelled: 0, returned: 0, dailyGross: 18091.19, remainingIncome: 18091.19 },
+            { date: "2026-01-23", totalOrders: 78, cancelled: 0, returned: 1, dailyGross: 20365.81, remainingIncome: 19970.69 },
+            { date: "2026-01-24", totalOrders: 31, cancelled: 0, returned: 0, dailyGross: 8389.53, remainingIncome: 8389.53 },
+            { date: "2026-01-25", totalOrders: 25, cancelled: 0, returned: 0, dailyGross: 6547.08, remainingIncome: 6547.08 },
+            { date: "2026-01-26", totalOrders: 27, cancelled: 0, returned: 0, dailyGross: 6498.36, remainingIncome: 6498.36 },
+            { date: "2026-01-27", totalOrders: 56, cancelled: 0, returned: 0, dailyGross: 13057.96, remainingIncome: 13057.96 },
+            { date: "2026-01-28", totalOrders: 53, cancelled: 0, returned: 0, dailyGross: 13808.40, remainingIncome: 13808.40 },
+            { date: "2026-01-29", totalOrders: 39, cancelled: 0, returned: 0, dailyGross: 9510.70, remainingIncome: 9510.70 },
+            { date: "2026-01-30", totalOrders: 54, cancelled: 0, returned: 0, dailyGross: 13241.14, remainingIncome: 13241.14 },
+            { date: "2026-01-31", totalOrders: 56, cancelled: 0, returned: 0, dailyGross: 9502.56, remainingIncome: 9502.56 }
+          ]
+        },
+        // FEBRUARY
+        1: {
+          discrepancy: 303715.07, tiktokFees: 77139.43, tiktokAdj: 29263.95, adsExpense: 28000.00, liveSeller: 37076.15, images: [],
+          logs: [
+            { date: "2026-02-01", totalOrders: 18, cancelled: 0, returned: 0, dailyGross: 3984.25, remainingIncome: 3984.25 },
+            { date: "2026-02-02", totalOrders: 83, cancelled: 0, returned: 0, dailyGross: 22879.66, remainingIncome: 22879.66 },
+            { date: "2026-02-03", totalOrders: 56, cancelled: 0, returned: 1, dailyGross: 13281.92, remainingIncome: 13105.57 },
+            { date: "2026-02-04", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 6590.49, remainingIncome: 6590.49 },
+            { date: "2026-02-05", totalOrders: 58, cancelled: 0, returned: 1, dailyGross: 14366.33, remainingIncome: 14156.33 },
+            { date: "2026-02-06", totalOrders: 29, cancelled: 0, returned: 0, dailyGross: 6562.72, remainingIncome: 6562.72 },
+            { date: "2026-02-07", totalOrders: 56, cancelled: 0, returned: 0, dailyGross: 13678.82, remainingIncome: 13678.82 },
+            { date: "2026-02-08", totalOrders: 22, cancelled: 0, returned: 1, dailyGross: 5490.84, remainingIncome: 5260.84 },
+            { date: "2026-02-09", totalOrders: 57, cancelled: 0, returned: 0, dailyGross: 14357.20, remainingIncome: 14357.20 },
+            { date: "2026-02-10", totalOrders: 44, cancelled: 0, returned: 0, dailyGross: 11399.87, remainingIncome: 11399.87 },
+            { date: "2026-02-11", totalOrders: 32, cancelled: 0, returned: 1, dailyGross: 8254.73, remainingIncome: 8041.63 },
+            { date: "2026-02-12", totalOrders: 38, cancelled: 0, returned: 0, dailyGross: 9974.86, remainingIncome: 9974.86 },
+            { date: "2026-02-13", totalOrders: 22, cancelled: 0, returned: 1, dailyGross: 5774.18, remainingIncome: 5544.18 },
+            { date: "2026-02-14", totalOrders: 27, cancelled: 1, returned: 1, dailyGross: 6716.60, remainingIncome: 6192.60 },
+            { date: "2026-02-15", totalOrders: 34, cancelled: 1, returned: 0, dailyGross: 8281.84, remainingIncome: 8011.84 },
+            { date: "2026-02-16", totalOrders: 47, cancelled: 0, returned: 1, dailyGross: 11539.21, remainingIncome: 11289.21 },
+            { date: "2026-02-17", totalOrders: 42, cancelled: 0, returned: 1, dailyGross: 10957.94, remainingIncome: 10727.94 },
+            { date: "2026-02-18", totalOrders: 56, cancelled: 0, returned: 1, dailyGross: 14762.50, remainingIncome: 14514.10 },
+            { date: "2026-02-19", totalOrders: 47, cancelled: 0, returned: 1, dailyGross: 12018.40, remainingIncome: 11789.04 },
+            { date: "2026-02-20", totalOrders: 35, cancelled: 0, returned: 3, dailyGross: 9185.67, remainingIncome: 8348.43 },
+            { date: "2026-02-21", totalOrders: 29, cancelled: 0, returned: 0, dailyGross: 7389.61, remainingIncome: 7389.61 },
+            { date: "2026-02-22", totalOrders: 26, cancelled: 0, returned: 0, dailyGross: 6380.66, remainingIncome: 6380.66 },
+            { date: "2026-02-23", totalOrders: 52, cancelled: 0, returned: 0, dailyGross: 13117.54, remainingIncome: 13117.54 },
+            { date: "2026-02-24", totalOrders: 29, cancelled: 2, returned: 0, dailyGross: 7971.44, remainingIncome: 7504.45 },
+            { date: "2026-02-25", totalOrders: 32, cancelled: 0, returned: 0, dailyGross: 8235.45, remainingIncome: 8235.45 },
+            { date: "2026-02-26", totalOrders: 50, cancelled: 0, returned: 0, dailyGross: 12694.41, remainingIncome: 12694.41 },
+            { date: "2026-02-27", totalOrders: 39, cancelled: 0, returned: 0, dailyGross: 9467.07, remainingIncome: 9467.07 },
+            { date: "2026-02-28", totalOrders: 35, cancelled: 0, returned: 2, dailyGross: 8527.26, remainingIncome: 8096.06 }
+          ]
+        },
+        // MARCH
+        2: {
+          discrepancy: 351395.00, tiktokFees: 90508.82, tiktokAdj: 37256.56, adsExpense: 36000.00, liveSeller: 27576.00, images: [],
+          logs: [
+            { date: "2026-03-01", totalOrders: 31, cancelled: 0, returned: 0, dailyGross: 7579.52, remainingIncome: 7579.52 },
+            { date: "2026-03-02", totalOrders: 39, cancelled: 0, returned: 1, dailyGross: 9812.29, remainingIncome: 9574.69 },
+            { date: "2026-03-03", totalOrders: 57, cancelled: 1, returned: 0, dailyGross: 14854.62, remainingIncome: 14581.82 },
+            { date: "2026-03-04", totalOrders: 35, cancelled: 0, returned: 0, dailyGross: 9822.26, remainingIncome: 9822.26 },
+            { date: "2026-03-05", totalOrders: 23, cancelled: 0, returned: 0, dailyGross: 6378.00, remainingIncome: 6378.00 },
+            { date: "2026-03-06", totalOrders: 37, cancelled: 0, returned: 1, dailyGross: 9948.82, remainingIncome: 9658.82 },
+            { date: "2026-03-07", totalOrders: 37, cancelled: 0, returned: 2, dailyGross: 9994.98, remainingIncome: 9452.90 },
+            { date: "2026-03-08", totalOrders: 29, cancelled: 2, returned: 1, dailyGross: 7586.92, remainingIncome: 6336.92 },
+            { date: "2026-03-09", totalOrders: 50, cancelled: 1, returned: 0, dailyGross: 13379.87, remainingIncome: 13145.87 },
+            { date: "2026-03-10", totalOrders: 60, cancelled: 0, returned: 2, dailyGross: 13069.91, remainingIncome: 12509.91 },
+            { date: "2026-03-11", totalOrders: 65, cancelled: 0, returned: 0, dailyGross: 17033.17, remainingIncome: 17033.17 },
+            { date: "2026-03-12", totalOrders: 49, cancelled: 2, returned: 2, dailyGross: 12818.21, remainingIncome: 11834.61 },
+            { date: "2026-03-13", totalOrders: 42, cancelled: 0, returned: 0, dailyGross: 11457.54, remainingIncome: 11457.54 },
+            { date: "2026-03-14", totalOrders: 40, cancelled: 0, returned: 0, dailyGross: 10872.59, remainingIncome: 10872.59 },
+            { date: "2026-03-15", totalOrders: 30, cancelled: 0, returned: 0, dailyGross: 8357.68, remainingIncome: 8357.68 },
+            { date: "2026-03-16", totalOrders: 49, cancelled: 1, returned: 2, dailyGross: 12639.22, remainingIncome: 11926.72 },
+            { date: "2026-03-17", totalOrders: 37, cancelled: 0, returned: 0, dailyGross: 9715.97, remainingIncome: 9715.97 },
+            { date: "2026-03-18", totalOrders: 40, cancelled: 0, returned: 0, dailyGross: 10497.52, remainingIncome: 10497.52 },
+            { date: "2026-03-19", totalOrders: 45, cancelled: 0, returned: 1, dailyGross: 11366.19, remainingIncome: 11166.08 },
+            { date: "2026-03-20", totalOrders: 30, cancelled: 0, returned: 1, dailyGross: 7955.37, remainingIncome: 7654.14 },
+            { date: "2026-03-21", totalOrders: 47, cancelled: 1, returned: 1, dailyGross: 12778.28, remainingIncome: 12251.28 },
+            { date: "2026-03-22", totalOrders: 41, cancelled: 0, returned: 1, dailyGross: 11461.36, remainingIncome: 11131.36 },
+            { date: "2026-03-23", totalOrders: 63, cancelled: 0, returned: 0, dailyGross: 17137.52, remainingIncome: 17137.52 },
+            { date: "2026-03-24", totalOrders: 58, cancelled: 0, returned: 1, dailyGross: 17157.16, remainingIncome: 16937.16 },
+            { date: "2026-03-25", totalOrders: 37, cancelled: 0, returned: 0, dailyGross: 10345.00, remainingIncome: 10345.00 },
+            { date: "2026-03-26", totalOrders: 27, cancelled: 0, returned: 1, dailyGross: 7669.71, remainingIncome: 7379.71 },
+            { date: "2026-03-27", totalOrders: 33, cancelled: 0, returned: 0, dailyGross: 9690.67, remainingIncome: 9690.67 },
+            { date: "2026-03-28", totalOrders: 34, cancelled: 0, returned: 0, dailyGross: 8947.65, remainingIncome: 8947.65 },
+            { date: "2026-03-29", totalOrders: 31, cancelled: 0, returned: 1, dailyGross: 8773.46, remainingIncome: 8483.46 },
+            { date: "2026-03-30", totalOrders: 26, cancelled: 0, returned: 0, dailyGross: 6401.72, remainingIncome: 6401.72 },
+            { date: "2026-03-31", totalOrders: 20, cancelled: 0, returned: 0, dailyGross: 3808.55, remainingIncome: 3808.55 }
+          ]
+        },
+        // APRIL
+        3: {
+          discrepancy: 214942.00, tiktokFees: 54845.97, tiktokAdj: 28968.49, adsExpense: 28000.00, liveSeller: 31222.50, images: [],
+          logs: [
+            { date: "2026-04-01", totalOrders: 14, cancelled: 0, returned: 0, dailyGross: 3357.51, remainingIncome: 3357.51 },
+            { date: "2026-04-02", totalOrders: 17, cancelled: 0, returned: 0, dailyGross: 4991.50, remainingIncome: 4991.50 },
+            { date: "2026-04-03", totalOrders: 10, cancelled: 0, returned: 0, dailyGross: 2712.10, remainingIncome: 2712.10 },
+            { date: "2026-04-04", totalOrders: 19, cancelled: 0, returned: 0, dailyGross: 5486.91, remainingIncome: 5486.91 },
+            { date: "2026-04-05", totalOrders: 18, cancelled: 0, returned: 0, dailyGross: 5012.00, remainingIncome: 5012.00 },
+            { date: "2026-04-06", totalOrders: 14, cancelled: 0, returned: 0, dailyGross: 3702.35, remainingIncome: 3702.35 },
+            { date: "2026-04-07", totalOrders: 13, cancelled: 0, returned: 0, dailyGross: 3529.98, remainingIncome: 3529.98 },
+            { date: "2026-04-08", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 8079.16, remainingIncome: 8079.16 },
+            { date: "2026-04-09", totalOrders: 15, cancelled: 0, returned: 0, dailyGross: 3904.30, remainingIncome: 3904.30 },
+            { date: "2026-04-10", totalOrders: 15, cancelled: 0, returned: 1, dailyGross: 3943.10, remainingIncome: 3693.10 },
+            { date: "2026-04-11", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 8125.62, remainingIncome: 8125.62 },
+            { date: "2026-04-12", totalOrders: 9, cancelled: 0, returned: 0, dailyGross: 2576.23, remainingIncome: 2576.23 },
+            { date: "2026-04-13", totalOrders: 25, cancelled: 0, returned: 2, dailyGross: 7018.54, remainingIncome: 6333.42 },
+            { date: "2026-04-14", totalOrders: 74, cancelled: 0, returned: 0, dailyGross: 20274.08, remainingIncome: 20274.08 },
+            { date: "2026-04-15", totalOrders: 27, cancelled: 0, returned: 0, dailyGross: 6886.59, remainingIncome: 6886.59 },
+            { date: "2026-04-16", totalOrders: 40, cancelled: 0, returned: 3, dailyGross: 10124.26, remainingIncome: 9404.96 },
+            { date: "2026-04-17", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 7487.57, remainingIncome: 7487.57 },
+            { date: "2026-04-18", totalOrders: 26, cancelled: 0, returned: 0, dailyGross: 6857.22, remainingIncome: 6857.22 },
+            { date: "2026-04-19", totalOrders: 21, cancelled: 0, returned: 0, dailyGross: 5571.78, remainingIncome: 5571.78 },
+            { date: "2026-04-20", totalOrders: 27, cancelled: 0, returned: 0, dailyGross: 7012.70, remainingIncome: 7012.70 },
+            { date: "2026-04-21", totalOrders: 53, cancelled: 0, returned: 3, dailyGross: 13147.11, remainingIncome: 12406.01 },
+            { date: "2026-04-22", totalOrders: 27, cancelled: 0, returned: 0, dailyGross: 6896.51, remainingIncome: 6896.51 },
+            { date: "2026-04-23", totalOrders: 48, cancelled: 0, returned: 0, dailyGross: 13068.52, remainingIncome: 13068.52 },
+            { date: "2026-04-24", totalOrders: 39, cancelled: 1, returned: 2, dailyGross: 9781.29, remainingIncome: 9038.24 },
+            { date: "2026-04-25", totalOrders: 23, cancelled: 0, returned: 2, dailyGross: 6133.27, remainingIncome: 5462.23 },
+            { date: "2026-04-26", totalOrders: 33, cancelled: 0, returned: 1, dailyGross: 8650.75, remainingIncome: 8400.75 },
+            { date: "2026-04-27", totalOrders: 49, cancelled: 0, returned: 0, dailyGross: 12777.12, remainingIncome: 12777.12 },
+            { date: "2026-04-28", totalOrders: 24, cancelled: 0, returned: 0, dailyGross: 5826.06, remainingIncome: 5826.06 },
+            { date: "2026-04-29", totalOrders: 34, cancelled: 0, returned: 0, dailyGross: 9289.57, remainingIncome: 9289.57 },
+            { date: "2026-04-30", totalOrders: 39, cancelled: 0, returned: 0, dailyGross: 10766.46, remainingIncome: 10766.46 }
+          ]
+        },
+        // MAY
+        4: {
+          discrepancy: 323788.00, tiktokFees: 81185.05, tiktokAdj: 29293.42, adsExpense: 28000.00, liveSeller: 41784.81, images: [],
+          logs: [
+            { date: "2026-05-01", totalOrders: 22, cancelled: 0, returned: 0, dailyGross: 5364.31, remainingIncome: 5364.31 },
+            { date: "2026-05-02", totalOrders: 60, cancelled: 0, returned: 0, dailyGross: 16562.28, remainingIncome: 16562.28 },
+            { date: "2026-05-03", totalOrders: 24, cancelled: 1, returned: 0, dailyGross: 6298.98, remainingIncome: 5890.39 },
+            { date: "2026-05-04", totalOrders: 30, cancelled: 0, returned: 0, dailyGross: 7769.90, remainingIncome: 7769.90 },
+            { date: "2026-05-05", totalOrders: 38, cancelled: 0, returned: 0, dailyGross: 9995.78, remainingIncome: 9995.78 },
+            { date: "2026-05-06", totalOrders: 30, cancelled: 0, returned: 0, dailyGross: 8130.33, remainingIncome: 8130.33 },
+            { date: "2026-05-07", totalOrders: 26, cancelled: 0, returned: 0, dailyGross: 6996.67, remainingIncome: 6996.67 },
+            { date: "2026-05-08", totalOrders: 15, cancelled: 0, returned: 0, dailyGross: 4153.22, remainingIncome: 4153.22 },
+            { date: "2026-05-09", totalOrders: 43, cancelled: 0, returned: 0, dailyGross: 8947.75, remainingIncome: 8947.75 },
+            { date: "2026-05-10", totalOrders: 48, cancelled: 0, returned: 0, dailyGross: 9683.52, remainingIncome: 9683.52 },
+            { date: "2026-05-11", totalOrders: 113, cancelled: 0, returned: 2, dailyGross: 19323.01, remainingIncome: 19068.01 },
+            { date: "2026-05-12", totalOrders: 85, cancelled: 0, returned: 0, dailyGross: 15441.40, remainingIncome: 15441.40 },
+            { date: "2026-05-13", totalOrders: 98, cancelled: 0, returned: 0, dailyGross: 17983.76, remainingIncome: 17983.76 },
+            { date: "2026-05-14", totalOrders: 84, cancelled: 0, returned: 0, dailyGross: 17707.02, remainingIncome: 17707.02 },
+            { date: "2026-05-15", totalOrders: 70, cancelled: 0, returned: 0, dailyGross: 14305.81, remainingIncome: 14305.81 },
+            { date: "2026-05-16", totalOrders: 73, cancelled: 0, returned: 0, dailyGross: 15743.38, remainingIncome: 15743.38 },
+            { date: "2026-05-17", totalOrders: 30, cancelled: 1, returned: 0, dailyGross: 8087.06, remainingIncome: 7857.06 },
+            { date: "2026-05-18", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 7399.89, remainingIncome: 7399.89 },
+            { date: "2026-05-19", totalOrders: 21, cancelled: 0, returned: 0, dailyGross: 5615.52, remainingIncome: 5615.52 },
+            { date: "2026-05-20", totalOrders: 43, cancelled: 0, returned: 0, dailyGross: 12468.79, remainingIncome: 12468.79 },
+            { date: "2026-05-21", totalOrders: 30, cancelled: 0, returned: 0, dailyGross: 7782.71, remainingIncome: 7782.71 },
+            { date: "2026-05-22", totalOrders: 28, cancelled: 0, returned: 0, dailyGross: 7920.05, remainingIncome: 7920.05 },
+            { date: "2026-05-23", totalOrders: 27, cancelled: 0, returned: 0, dailyGross: 7072.44, remainingIncome: 7072.44 },
+            { date: "2026-05-24", totalOrders: 33, cancelled: 1, returned: 0, dailyGross: 7481.42, remainingIncome: 7232.42 },
+            { date: "2026-05-25", totalOrders: 42, cancelled: 0, returned: 0, dailyGross: 9306.67, remainingIncome: 9306.67 },
+            { date: "2026-05-26", totalOrders: 54, cancelled: 2, returned: 0, dailyGross: 10961.62, remainingIncome: 10627.72 },
+            { date: "2026-05-27", totalOrders: 38, cancelled: 0, returned: 0, dailyGross: 7340.84, remainingIncome: 7340.84 },
+            { date: "2026-05-28", totalOrders: 61, cancelled: 0, returned: 0, dailyGross: 11776.87, remainingIncome: 11776.87 },
+            { date: "2026-05-29", totalOrders: 56, cancelled: 1, returned: 0, dailyGross: 10765.30, remainingIncome: 10468.30 },
+            { date: "2026-05-30", totalOrders: 51, cancelled: 0, returned: 0, dailyGross: 10159.63, remainingIncome: 10159.63 },
+            { date: "2026-05-31", totalOrders: 67, cancelled: 0, returned: 0, dailyGross: 12737.40, remainingIncome: 12737.40 }
+          ]
+        },
+        // JUNE
+        5: {
+          discrepancy: 421889.42, tiktokFees: 108419.44, tiktokAdj: 32493.13, adsExpense: 31000.00, liveSeller: 23460.60, images: [],
+          logs: [
+            { date: "2026-06-01", totalOrders: 101, cancelled: 0, returned: 0, dailyGross: 18817.97, remainingIncome: 18817.97 },
+            { date: "2026-06-02", totalOrders: 95, cancelled: 0, returned: 1, dailyGross: 17856.27, remainingIncome: 17686.27 },
+            { date: "2026-06-03", totalOrders: 93, cancelled: 0, returned: 0, dailyGross: 18094.66, remainingIncome: 18094.66 },
+            { date: "2026-06-04", totalOrders: 100, cancelled: 0, returned: 0, dailyGross: 18095.11, remainingIncome: 18095.11 },
+            { date: "2026-06-05", totalOrders: 122, cancelled: 0, returned: 0, dailyGross: 21970.10, remainingIncome: 21970.10 },
+            { date: "2026-06-06", totalOrders: 83, cancelled: 6, returned: 0, dailyGross: 15054.08, remainingIncome: 13348.07 },
+            { date: "2026-06-07", totalOrders: 49, cancelled: 0, returned: 1, dailyGross: 9292.05, remainingIncome: 9102.05 },
+            { date: "2026-06-08", totalOrders: 60, cancelled: 0, returned: 0, dailyGross: 11618.15, remainingIncome: 11618.15 },
+            { date: "2026-06-09", totalOrders: 80, cancelled: 0, returned: 1, dailyGross: 16597.12, remainingIncome: 16426.12 },
+            { date: "2026-06-10", totalOrders: 109, cancelled: 0, returned: 2, dailyGross: 20070.21, remainingIncome: 19762.51 },
+            { date: "2026-06-11", totalOrders: 48, cancelled: 0, returned: 2, dailyGross: 8943.08, remainingIncome: 8543.08 },
+            { date: "2026-06-12", totalOrders: 72, cancelled: 0, returned: 2, dailyGross: 13909.81, remainingIncome: 13469.81 },
+            { date: "2026-06-13", totalOrders: 83, cancelled: 0, returned: 0, dailyGross: 15012.42, remainingIncome: 15012.42 },
+            { date: "2026-06-14", totalOrders: 62, cancelled: 0, returned: 3, dailyGross: 12762.52, remainingIncome: 12074.52 },
+            { date: "2026-06-15", totalOrders: 87, cancelled: 0, returned: 2, dailyGross: 16646.95, remainingIncome: 16236.95 },
+            { date: "2026-06-16", totalOrders: 54, cancelled: 0, returned: 0, dailyGross: 10849.96, remainingIncome: 10849.96 },
+            { date: "2026-06-17", totalOrders: 39, cancelled: 0, returned: 0, dailyGross: 9586.79, remainingIncome: 9586.79 },
+            { date: "2026-06-18", totalOrders: 30, cancelled: 1, returned: 0, dailyGross: 7643.13, remainingIncome: 7415.13 },
+            { date: "2026-06-19", totalOrders: 45, cancelled: 0, returned: 1, dailyGross: 11778.52, remainingIncome: 11498.52 },
+            { date: "2026-06-20", totalOrders: 37, cancelled: 0, returned: 3, dailyGross: 8962.53, remainingIncome: 8332.53 },
+            { date: "2026-06-21", totalOrders: 46, cancelled: 2, returned: 4, dailyGross: 9552.16, remainingIncome: 8464.96 },
+            { date: "2026-06-22", totalOrders: 73, cancelled: 1, returned: 2, dailyGross: 14898.46, remainingIncome: 14318.46 },
+            { date: "2026-06-23", totalOrders: 91, cancelled: 1, returned: 1, dailyGross: 18459.54, remainingIncome: 17979.54 },
+            { date: "2026-06-24", totalOrders: 78, cancelled: 1, returned: 6, dailyGross: 16393.27, remainingIncome: 14106.91 },
+            { date: "2026-06-25", totalOrders: 86, cancelled: 0, returned: 3, dailyGross: 18122.38, remainingIncome: 17444.18 },
+            { date: "2026-06-26", totalOrders: 76, cancelled: 0, returned: 1, dailyGross: 15106.71, remainingIncome: 14866.71 },
+            { date: "2026-06-27", totalOrders: 108, cancelled: 1, returned: 2, dailyGross: 22687.82, remainingIncome: 22135.82 },
+            { date: "2026-06-28", totalOrders: 55, cancelled: 0, returned: 0, dailyGross: 11203.82, remainingIncome: 11203.82 },
+            { date: "2026-06-29", totalOrders: 63, cancelled: 0, returned: 1, dailyGross: 13210.70, remainingIncome: 13026.64 },
+            { date: "2026-06-30", totalOrders: 86, cancelled: 0, returned: 0, dailyGross: 16753.74, remainingIncome: 16753.74 }
+          ]
+        },
+        // JULY
+        6: {
+          discrepancy: 0.00, tiktokFees: 0.00, tiktokAdj: 0.00, adsExpense: 0.00, liveSeller: 0.00, images: [],
+          logs: [
+            { date: "2026-07-01", totalOrders: 80, cancelled: 0, returned: 1, dailyGross: 16928.07, remainingIncome: 16721.27 },
+            { date: "2026-07-02", totalOrders: 84, cancelled: 1, returned: 2, dailyGross: 17545.82, remainingIncome: 16893.54 },
+            { date: "2026-07-03", totalOrders: 102, cancelled: 1, returned: 5, dailyGross: 20699.84, remainingIncome: 19473.95 },
+            { date: "2026-07-04", totalOrders: 59, cancelled: 0, returned: 0, dailyGross: 13095.28, remainingIncome: 13095.28 },
+            { date: "2026-07-05", totalOrders: 64, cancelled: 0, returned: 0, dailyGross: 13026.67, remainingIncome: 13026.67 },
+            { date: "2026-07-06", totalOrders: 62, cancelled: 1, returned: 1, dailyGross: 12999.25, remainingIncome: 12552.45 },
+            { date: "2026-07-07", totalOrders: 79, cancelled: 1, returned: 1, dailyGross: 16059.01, remainingIncome: 15613.71 },
+            { date: "2026-07-08", totalOrders: 87, cancelled: 1, returned: 0, dailyGross: 17878.61, remainingIncome: 17678.61 },
+            { date: "2026-07-09", totalOrders: 77, cancelled: 1, returned: 2, dailyGross: 16411.77, remainingIncome: 15792.72 },
+            { date: "2026-07-10", totalOrders: 74, cancelled: 0, returned: 0, dailyGross: 16217.64, remainingIncome: 16217.64 },
+            { date: "2026-07-11", totalOrders: 75, cancelled: 0, returned: 3, dailyGross: 15192.23, remainingIncome: 14555.83 },
+            { date: "2026-07-12", totalOrders: 53, cancelled: 0, returned: 0, dailyGross: 11544.93, remainingIncome: 11544.93 },
+            { date: "2026-07-13", totalOrders: 83, cancelled: 1, returned: 1, dailyGross: 17376.28, remainingIncome: 16956.84 },
+            { date: "2026-07-14", totalOrders: 68, cancelled: 0, returned: 0, dailyGross: 13655.93, remainingIncome: 13655.93 },
+            { date: "2026-07-15", totalOrders: 66, cancelled: 1, returned: 1, dailyGross: 13475.65, remainingIncome: 13109.65 },
+            { date: "2026-07-16", totalOrders: 65, cancelled: 0, returned: 1, dailyGross: 13506.55, remainingIncome: 13286.55 },
+            { date: "2026-07-17", totalOrders: 73, cancelled: 3, returned: 2, dailyGross: 15293.89, remainingIncome: 14291.89 },
+            { date: "2026-07-18", totalOrders: 62, cancelled: 0, returned: 1, dailyGross: 12896.97, remainingIncome: 12692.59 },
+            { date: "2026-07-19", totalOrders: 46, cancelled: 0, returned: 1, dailyGross: 10084.01, remainingIncome: 9884.01 },
+            { date: "2026-07-20", totalOrders: 67, cancelled: 0, returned: 1, dailyGross: 13682.30, remainingIncome: 13482.30 },
+            { date: "2026-07-21", totalOrders: 73, cancelled: 0, returned: 1, dailyGross: 15067.15, remainingIncome: 14837.15 },
+            { date: "2026-07-22", totalOrders: 74, cancelled: 0, returned: 1, dailyGross: 15192.86, remainingIncome: 14992.86 },
+            { date: "2026-07-23", totalOrders: 54, cancelled: 0, returned: 0, dailyGross: 11082.20, remainingIncome: 11082.20 },
+            { date: "2026-07-24", totalOrders: 66, cancelled: 1, returned: 0, dailyGross: 13907.48, remainingIncome: 13726.48 },
+            { date: "2026-07-25", totalOrders: 34, cancelled: 0, returned: 0, dailyGross: 7303.80, remainingIncome: 7303.80 },
+            { date: "2026-07-26", totalOrders: 37, cancelled: 0, returned: 0, dailyGross: 8372.67, remainingIncome: 8372.67 },
+            { date: "2026-07-27", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-07-28", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-07-29", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-07-30", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 },
+            { date: "2026-07-31", totalOrders: 0, cancelled: 0, returned: 0, dailyGross: 0, remainingIncome: 0 }
+          ]
+        }
+      }
+    };
 
     window.onload = function() {
-      loadFromLocalStorage();
+      loadInitialData();
       initChart();
       renderMonthNav();
-      switchMonth(0);
+      switchMonth(6); // Default to July
     };
 
     function parseRawNumber(str) {
@@ -787,9 +1031,6 @@
           images: []
         };
       }
-      if (!dataStore[year][monthIdx].images) {
-        dataStore[year][monthIdx].images = [];
-      }
     }
 
     function renderTrackerTable() {
@@ -876,7 +1117,7 @@
 
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
       const totalGrossSales = sumRemainingIncome;
-      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
+      const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0) + (monthData.adsExpense || 0);
       const remainingProduction = totalGrossSales - totalDeductions - (monthData.liveSeller || 0);
 
       const fmtPct = num => (totalGrossSales > 0 ? ((num / totalGrossSales) * 100).toFixed(2) : '0.00') + '%';
@@ -967,7 +1208,6 @@
       parcelsChartInstance.update();
     }
 
-    /* IMAGE UPLOAD LOGIC */
     function handleImageUpload(event) {
       const files = Array.from(event.target.files);
       const currentImages = dataStore[currentYear][currentMonthIndex].images;
@@ -1033,53 +1273,18 @@
       alert('Data and images successfully saved in Local Storage!');
     }
 
-    function loadFromLocalStorage() {
+    function loadInitialData() {
       const saved = localStorage.getItem('unique_apparel_sales_data');
       if (saved) {
         try {
-          dataStore = JSON.parse(saved);
+          const parsed = JSON.parse(saved);
+          dataStore = parsed;
         } catch(e) {
-          console.error("Error loading local storage data", e);
+          console.error("Error loading saved local data", e);
         }
       }
     }
 
-    /* JSON IMPORT & EXPORT FOR SHARING */
-    function exportJSONData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataStore));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `Unique_Apparel_Data_Backup_${new Date().toISOString().slice(0,10)}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    function importJSONData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const importedData = JSON.parse(e.target.result);
-          if (importedData && typeof importedData === 'object') {
-            dataStore = importedData;
-            autoSaveToLocalStorage();
-            switchMonth(currentMonthIndex);
-            alert('Data and images successfully imported!');
-          } else {
-            alert('Invalid JSON file format.');
-          }
-        } catch (err) {
-          alert('Error reading the JSON file. Make sure it is a valid backup file.');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    /* EXCEL EXPORT LOGIC */
     function exportToExcel() {
       const monthData = dataStore[currentYear][currentMonthIndex];
       const monthName = months[currentMonthIndex];
@@ -1132,7 +1337,7 @@
       const tiktokFees = monthData.tiktokFees || 0;
       const tiktokAdj = monthData.tiktokAdj || 0;
       const adsExp = monthData.adsExpense || 0;
-      const totalDeduction = tiktokFees + tiktokAdj;
+      const totalDeduction = tiktokFees + tiktokAdj + adsExp;
       const liveSeller = monthData.liveSeller || 0;
       const remainingProd = totalSales - totalDeduction - liveSeller;
       const discrepancy = monthData.discrepancy || 0;
