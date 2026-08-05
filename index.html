@@ -22,24 +22,22 @@
       --accent-purple: #c084fc;
       --accent-orange: #fb923c;
       --accent-red: #f87171;
+      --accent-yellow: #eab308;
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --border-color: #30363d;
     }
-
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
       padding: 20px;
     }
-
     /* Header & Controls */
     header {
       display: flex;
@@ -51,13 +49,11 @@
       flex-wrap: wrap;
       gap: 15px;
     }
-
     .brand-container {
       display: flex;
       align-items: center;
       gap: 12px;
     }
-
     .brand-icon {
       background: linear-gradient(135deg, #e11d48, #3b82f6, #10b981);
       width: 45px;
@@ -70,7 +66,6 @@
       color: #ffffff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
-
     .brand-title {
       font-size: 1.5rem;
       font-weight: 900;
@@ -80,14 +75,12 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-
     .brand-text p {
       font-size: 0.85rem;
       color: var(--accent-blue);
       font-style: italic;
       margin-top: 2px;
     }
-
     .year-selector {
       display: flex;
       align-items: center;
@@ -97,12 +90,10 @@
       border-radius: 8px;
       border: 1px solid var(--border-color);
     }
-
     .year-selector label {
       font-weight: 600;
       color: var(--text-muted);
     }
-
     .year-selector select {
       background: transparent;
       color: var(--accent-blue);
@@ -112,12 +103,10 @@
       outline: none;
       cursor: pointer;
     }
-
     .year-selector select option {
       background: var(--card-bg);
       color: var(--text-main);
     }
-
     /* Month Navigation Bar */
     .month-nav {
       display: flex;
@@ -126,7 +115,6 @@
       padding-bottom: 10px;
       margin-bottom: 25px;
     }
-
     .month-btn {
       background: var(--card-bg);
       color: var(--text-muted);
@@ -138,19 +126,16 @@
       transition: all 0.2s ease;
       font-weight: 600;
     }
-
     .month-btn:hover {
       border-color: var(--accent-blue);
       color: #fff;
     }
-
     .month-btn.active {
       background: var(--accent-blue);
       color: #0d1117;
       border-color: var(--accent-blue);
       font-weight: 700;
     }
-
     /* Top Summary KPI Cards */
     .kpi-grid {
       display: grid;
@@ -158,7 +143,6 @@
       gap: 15px;
       margin-bottom: 25px;
     }
-
     .kpi-card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -166,7 +150,6 @@
       border: 1px solid var(--border-color);
       text-align: center;
     }
-
     .kpi-card h4 {
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -174,26 +157,22 @@
       letter-spacing: 0.5px;
       margin-bottom: 8px;
     }
-
     .kpi-card .value {
       font-size: 1.6rem;
       font-weight: bold;
       color: var(--accent-blue);
     }
-
     /* Main Dashboard Grid */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 20px;
     }
-
     @media (max-width: 1024px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
       }
     }
-
     .section-card {
       background: var(--card-bg);
       border-radius: 8px;
@@ -201,7 +180,6 @@
       padding: 20px;
       margin-bottom: 20px;
     }
-
     .section-title {
       font-size: 1.1rem;
       font-weight: 700;
@@ -211,7 +189,6 @@
       align-items: center;
       gap: 10px;
     }
-
     /* Table Styling */
     .table-container {
       max-height: 480px;
@@ -219,13 +196,11 @@
       border: 1px solid var(--border-color);
       border-radius: 6px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.88rem;
     }
-
     th {
       position: sticky;
       top: 0;
@@ -235,17 +210,14 @@
       padding: 10px;
       border-bottom: 1px solid var(--border-color);
     }
-
     td {
       padding: 8px 10px;
       border-bottom: 1px solid var(--border-color);
     }
-
     tr:hover {
       background-color: rgba(255, 255, 255, 0.03);
     }
-
-    input[type="text"], input[type="number"] {
+    input[type="text"], input[type="number"], input[type="date"] {
       width: 100%;
       background: #0d1117;
       border: 1px solid var(--border-color);
@@ -255,11 +227,50 @@
       outline: none;
       font-weight: 600;
     }
-
-    input[type="text"]:focus, input[type="number"]:focus {
+    input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus {
       border-color: var(--accent-blue);
       background: #1c2128;
     }
+
+    /* Product Sales & Ranking Specific Styles */
+    .date-picker-bar {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      background: #0d1117;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .date-picker-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .date-picker-group label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+    .date-picker-group input {
+      width: auto;
+    }
+    .rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+    .rank-1 { background: #eab308; color: #0d1117; }
+    .rank-2 { background: #94a3b8; color: #0d1117; }
+    .rank-3 { background: #b45309; color: #ffffff; }
+    .rank-other { background: var(--border-color); color: var(--text-muted); }
 
     /* Deductions & Summary Breakdown */
     .summary-table {
@@ -267,12 +278,10 @@
       border-collapse: collapse;
       margin-bottom: 15px;
     }
-
     .summary-table th, .summary-table td {
       padding: 10px;
       text-align: left;
     }
-
     /* Bottom Metric Highlight Bar */
     .metrics-bar {
       display: grid;
@@ -284,11 +293,9 @@
       border: 1px solid var(--border-color);
       margin-top: 15px;
     }
-
     .metric-item {
       text-align: center;
     }
-
     .metric-item label {
       display: block;
       font-size: 0.75rem;
@@ -296,12 +303,10 @@
       margin-bottom: 4px;
       text-transform: uppercase;
     }
-
     .metric-item span {
       font-size: 1.1rem;
       font-weight: bold;
     }
-
     .chart-box {
       position: relative;
       height: 280px;
@@ -309,7 +314,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .btn-action {
       background: var(--accent-green);
       color: #0d1117;
@@ -320,7 +324,6 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
-
     .btn-excel {
       background: #107c41; /* Excel Green */
       color: #ffffff;
@@ -331,11 +334,9 @@
       cursor: pointer;
       transition: opacity 0.2s;
     }
-
     .btn-action:hover, .btn-excel:hover {
       opacity: 0.9;
     }
-
     /* IMAGE ATTACHMENTS SECTION STYLES */
     .upload-box {
       border: 2px dashed var(--border-color);
@@ -347,18 +348,15 @@
       margin-bottom: 20px;
       transition: border-color 0.2s;
     }
-
     .upload-box:hover {
       border-color: var(--accent-blue);
     }
-
     .image-grid {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       align-items: flex-start;
     }
-
     .image-card {
       position: relative;
       border-radius: 8px;
@@ -368,7 +366,6 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       max-width: 100%;
     }
-
     .image-card img {
       display: block;
       width: auto;
@@ -379,7 +376,6 @@
       cursor: pointer;
       transition: transform 0.2s;
     }
-
     .delete-img-btn {
       position: absolute;
       top: 8px;
@@ -398,7 +394,6 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
       z-index: 10;
     }
-
     /* Image Lightbox Modal */
     .image-modal {
       display: none;
@@ -412,7 +407,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .image-modal img {
       max-width: 90%;
       max-height: 90%;
@@ -421,8 +415,7 @@
   </style>
 </head>
 <body>
-
-  <!-- Header Section (Pure CSS Styling) -->
+  <!-- Header Section -->
   <header>
     <div class="brand-container">
       <div class="brand-icon">
@@ -433,7 +426,6 @@
         <p>"Wear the fun, feel comfort" - Control Software System</p>
       </div>
     </div>
-
     <div style="display: flex; gap: 10px; align-items: center;">
       <div class="year-selector">
         <label for="yearSelect"><i class="fa-regular fa-calendar"></i> YEAR:</label>
@@ -480,7 +472,7 @@
   <!-- Main Content Dashboard Grid -->
   <div class="dashboard-grid">
     
-    <!-- Left Column: Daily Tracker Logs Table + Images -->
+    <!-- Left Column -->
     <div>
       <div class="section-card">
         <div class="section-title">
@@ -505,6 +497,83 @@
         </div>
       </div>
 
+      <!-- PRODUCT SALES INPUT SECTION -->
+      <div class="section-card">
+        <div class="section-title">
+          <i class="fa-solid fa-boxes-packing" style="color: var(--accent-yellow);"></i>
+          PRODUCT SALES INPUT
+        </div>
+
+        <!-- Date Range Controls -->
+        <div class="date-picker-bar">
+          <div class="date-picker-group">
+            <label>START DATE:</label>
+            <input type="date" id="prodStartDate">
+          </div>
+          <div class="date-picker-group">
+            <label>END DATE:</label>
+            <input type="date" id="prodEndDate">
+          </div>
+          <button class="btn-action" style="padding: 6px 14px; font-size: 0.85rem;" onclick="saveProductSalesBatch()">
+            <i class="fa-solid fa-plus"></i> Record Batch
+          </button>
+        </div>
+
+        <!-- Inputs Table -->
+        <div class="table-container" style="max-height: 320px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 60%;">Product Name</th>
+                <th style="width: 40%;">Total Sold (Pcs)</th>
+              </tr>
+            </thead>
+            <tbody id="productInputTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RECORDED BATCHES HISTORY SECTION -->
+      <div class="section-card">
+        <div class="section-title">
+          <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i>
+          RECORDED BATCHES HISTORY
+        </div>
+        <div class="table-container" style="max-height: 250px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 30%;">Date Range</th>
+                <th style="width: 45%;">Items & Quantities Sold</th>
+                <th style="width: 15%; text-align: center;">Total Sold (Pcs)</th>
+                <th style="width: 10%; text-align: center;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="batchHistoryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- OVERALL RANKING & SALES SUMMARY -->
+      <div class="section-card">
+        <div class="section-title">
+          <i class="fa-solid fa-trophy" style="color: var(--accent-yellow);"></i>
+          OVERALL PRODUCT SALES & RANKING
+        </div>
+        <div class="table-container" style="max-height: 360px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 20%; text-align: center;">Rank</th>
+                <th style="width: 50%;">Product Name</th>
+                <th style="width: 30%;">Overall Total Sold</th>
+              </tr>
+            </thead>
+            <tbody id="overallSummaryTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
       <!-- MONTHLY ATTACHMENTS CARD -->
       <div class="section-card">
         <div class="section-title">
@@ -520,9 +589,8 @@
       </div>
     </div>
 
-    <!-- Right Column: Breakdown & Visual Chart -->
+    <!-- Right Column -->
     <div>
-      <!-- Expenses & Breakdown Card -->
       <div class="section-card">
         <div class="section-title">
           <i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i>
@@ -644,7 +712,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
   <!-- Image Lightbox Modal View -->
@@ -654,10 +721,15 @@
 
   <script>
     Chart.register(ChartDataLabels);
-
     const months = [
       "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", 
       "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+    ];
+
+    const defaultProducts = [
+      "Fire Red V-neck", "Paisley Black", "Paisley Pink", "Camo Army Green", "Camo Stripes",
+      "Fallen Leaves", "Flame Red orange", "Raider Black", "Unique Crown", "Tank Top Jersey 1", "Racing Track",
+      "Racing Oversized", "One Piece Brook", "One Piece Luffy"
     ];
 
     let currentYear = "2026";
@@ -741,6 +813,9 @@
       
       ensureDataStructure(currentYear, currentMonthIndex);
       renderTrackerTable();
+      renderProductInputTable();
+      renderBatchHistoryTable();
+      renderOverallSummaryTable();
       loadSummaryInputs();
       calculateSummary();
       renderImages();
@@ -769,11 +844,15 @@
           tiktokAdj: 0,
           adsExpense: 0,
           liveSeller: 0,
-          images: []
+          images: [],
+          productBatches: []
         };
       }
       if (!dataStore[year][monthIdx].images) {
         dataStore[year][monthIdx].images = [];
+      }
+      if (!dataStore[year][monthIdx].productBatches) {
+        dataStore[year][monthIdx].productBatches = [];
       }
     }
 
@@ -781,7 +860,6 @@
       const monthData = dataStore[currentYear][currentMonthIndex];
       const tbody = document.getElementById('trackerTableBody');
       tbody.innerHTML = '';
-
       monthData.logs.forEach((log, i) => {
         const remainingOrders = Math.max(0, log.totalOrders - log.cancelled - log.returned);
         const tr = document.createElement('tr');
@@ -814,6 +892,164 @@
       });
     }
 
+    /* PRODUCT SALES LOGIC */
+    function renderProductInputTable() {
+      const tbody = document.getElementById('productInputTableBody');
+      tbody.innerHTML = '';
+
+      defaultProducts.forEach((prodName, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <input type="text" value="${prodName}" class="prod-name-input" data-index="${i}">
+          </td>
+          <td>
+            <input type="number" min="0" placeholder="0" class="prod-qty-input" data-index="${i}" onkeydown="handleKeyNavigation(event, this)">
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const mm = String(currentMonthIndex + 1).padStart(2, '0');
+      document.getElementById('prodStartDate').value = `${currentYear}-${mm}-01`;
+      document.getElementById('prodEndDate').value = `${currentYear}-${mm}-07`;
+    }
+
+    function saveProductSalesBatch() {
+      const startDate = document.getElementById('prodStartDate').value;
+      const endDate = document.getElementById('prodEndDate').value;
+
+      if (!startDate || !endDate) {
+        alert('Please select both a Start Date and End Date.');
+        return;
+      }
+
+      const nameInputs = document.querySelectorAll('.prod-name-input');
+      const qtyInputs = document.querySelectorAll('.prod-qty-input');
+      const items = {};
+      let totalQty = 0;
+
+      nameInputs.forEach((input, i) => {
+        const name = input.value.trim();
+        const qty = parseInt(qtyInputs[i].value) || 0;
+        if (name) {
+          items[name] = qty;
+          totalQty += qty;
+        }
+      });
+
+      if (totalQty === 0) {
+        alert('Please enter sales quantities for at least one product.');
+        return;
+      }
+
+      const monthData = dataStore[currentYear][currentMonthIndex];
+      monthData.productBatches.push({ startDate, endDate, items });
+
+      qtyInputs.forEach(i => i.value = '');
+
+      renderBatchHistoryTable();
+      renderOverallSummaryTable();
+      autoSaveToLocalStorage();
+      alert(`Recorded sales batch for ${startDate} to ${endDate}!`);
+    }
+
+    function renderBatchHistoryTable() {
+      const monthData = dataStore[currentYear][currentMonthIndex];
+      const tbody = document.getElementById('batchHistoryTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const batches = monthData.productBatches || [];
+
+      if (batches.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No recorded batches yet for this month.</td></tr>`;
+        return;
+      }
+
+      batches.forEach((batch, index) => {
+        let totalBatchQty = 0;
+        let itemsList = [];
+
+        for (const [pName, qty] of Object.entries(batch.items)) {
+          if (qty > 0 && defaultProducts.includes(pName)) {
+            itemsList.push(`${pName} (${qty} pcs)`);
+            totalBatchQty += qty;
+          }
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="font-weight: 600; color: var(--accent-blue); white-space: nowrap;">
+            ${batch.startDate} &rarr; ${batch.endDate}
+          </td>
+          <td style="font-size: 0.82rem; color: var(--text-main);">
+            ${itemsList.length > 0 ? itemsList.join(', ') : 'No valid items recorded'}
+          </td>
+          <td style="font-weight: bold; text-align: center; color: var(--accent-green);">
+            ${totalBatchQty.toLocaleString()} pcs
+          </td>
+          <td style="text-align: center;">
+            <button style="background: var(--accent-red); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;" 
+                    onclick="deleteProductBatch(${index})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function deleteProductBatch(index) {
+      if (confirm('Are you sure you want to delete this batch record?')) {
+        dataStore[currentYear][currentMonthIndex].productBatches.splice(index, 1);
+        renderBatchHistoryTable();
+        renderOverallSummaryTable();
+        autoSaveToLocalStorage();
+      }
+    }
+
+    function renderOverallSummaryTable() {
+      const monthData = dataStore[currentYear][currentMonthIndex];
+      const totals = {};
+
+      // Filter: Only track exact default products
+      defaultProducts.forEach(p => totals[p] = 0);
+
+      (monthData.productBatches || []).forEach(batch => {
+        for (const [pName, qty] of Object.entries(batch.items)) {
+          if (totals.hasOwnProperty(pName)) {
+            totals[pName] += qty;
+          }
+        }
+      });
+
+      const sorted = Object.keys(totals)
+        .map(name => ({ name, qty: totals[name] }))
+        .sort((a, b) => b.qty - a.qty);
+
+      const tbody = document.getElementById('overallSummaryTableBody');
+      tbody.innerHTML = '';
+
+      sorted.forEach((item, index) => {
+        const rank = index + 1;
+        let badgeClass = 'rank-other';
+        if (rank === 1) badgeClass = 'rank-1';
+        else if (rank === 2) badgeClass = 'rank-2';
+        else if (rank === 3) badgeClass = 'rank-3';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: center;">
+            <span class="rank-badge ${badgeClass}">${rank}</span>
+          </td>
+          <td style="font-weight: 600;">${item.name}</td>
+          <td style="font-weight: bold; color: var(--accent-blue);">${item.qty.toLocaleString()} pcs</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
     function updateLog(index, field, value) {
       const numVal = parseFloat(value) || 0;
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
@@ -824,12 +1060,10 @@
       const numVal = parseRawNumber(inputElem.value);
       inputElem.value = fmtCurrency(numVal);
       dataStore[currentYear][currentMonthIndex].logs[index][field] = numVal;
-
       if (field === 'dailyGross' && dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome === 0) {
         dataStore[currentYear][currentMonthIndex].logs[index].remainingIncome = numVal;
         renderTrackerTable();
       }
-
       calculateSummary();
     }
 
@@ -844,13 +1078,11 @@
 
     function calculateSummary() {
       const monthData = dataStore[currentYear][currentMonthIndex];
-
       let sumDailyGrossIncome = 0;
       let sumRemainingIncome = 0;
       let totalOrdersVolume = 0;
       let cancelledVolume = 0;
       let returnedVolume = 0;
-
       monthData.logs.forEach(log => {
         sumDailyGrossIncome += log.dailyGross;
         sumRemainingIncome += log.remainingIncome;
@@ -858,21 +1090,19 @@
         cancelledVolume += log.cancelled;
         returnedVolume += log.returned;
       });
-
       const sumRemainingOrders = Math.max(0, totalOrdersVolume - cancelledVolume - returnedVolume);
       const totalGrossSales = sumRemainingIncome;
       const totalDeductions = (monthData.tiktokFees || 0) + (monthData.tiktokAdj || 0);
       const remainingProduction = totalGrossSales - totalDeductions - (monthData.liveSeller || 0);
-
       const fmtPct = num => (totalGrossSales > 0 ? ((num / totalGrossSales) * 100).toFixed(2) : '0.00') + '%';
-
+      
       // KPI Top Cards
       document.getElementById('kpiGrossSales').innerText = fmtCurrency(sumDailyGrossIncome);
       document.getElementById('kpiTotalOrders').innerText = totalOrdersVolume.toLocaleString();
       document.getElementById('kpiRemainingOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('kpiCancelledVolume').innerText = cancelledVolume.toLocaleString();
       document.getElementById('kpiReturnedVolume').innerText = returnedVolume.toLocaleString();
-
+      
       // Breakdown Table
       document.getElementById('sumGrossSales').innerText = fmtCurrency(totalGrossSales);
       document.getElementById('pctTiktokFees').innerText = fmtPct(monthData.tiktokFees);
@@ -881,24 +1111,21 @@
       
       document.getElementById('sumTotalDeductions').innerText = fmtCurrency(totalDeductions);
       document.getElementById('pctTotalDeductions').innerText = fmtPct(totalDeductions);
-
       document.getElementById('pctLiveSeller').innerText = fmtPct(monthData.liveSeller);
       
       document.getElementById('sumProduction').innerText = fmtCurrency(remainingProduction);
       document.getElementById('pctProduction').innerText = fmtPct(remainingProduction);
-
+      
       // Financial Breakdown Metrics Bar
       const safeVolume = sumRemainingOrders > 0 ? sumRemainingOrders : 1;
       const tiktokPerOrder = totalDeductions / safeVolume;
       const liveSellerPerOrder = (monthData.liveSeller || 0) / safeVolume;
       const productionPerOrder = remainingProduction / safeVolume;
-
       document.getElementById('metricTotalOrders').innerText = sumRemainingOrders.toLocaleString();
       document.getElementById('metricSalePerParcel').innerText = fmtCurrency(totalGrossSales / safeVolume);
       document.getElementById('metricTiktokPerOrder').innerText = fmtCurrency(tiktokPerOrder);
       document.getElementById('metricLiveSellerPerOrder').innerText = fmtCurrency(liveSellerPerOrder);
       document.getElementById('metricProductionPerOrder').innerText = fmtCurrency(productionPerOrder);
-
       updateChart(tiktokPerOrder, liveSellerPerOrder, Math.max(0, productionPerOrder));
       autoSaveToLocalStorage();
     }
@@ -956,12 +1183,10 @@
     function handleImageUpload(event) {
       const files = Array.from(event.target.files);
       const currentImages = dataStore[currentYear][currentMonthIndex].images;
-
       if (currentImages.length + files.length > 5) {
         alert('Maximum of 5 images allowed per month!');
         return;
       }
-
       files.forEach(file => {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -973,7 +1198,6 @@
         };
         reader.readAsDataURL(file);
       });
-
       event.target.value = '';
     }
 
@@ -1033,18 +1257,14 @@
     function exportToExcel() {
       const monthData = dataStore[currentYear][currentMonthIndex];
       const monthName = months[currentMonthIndex];
-
       let sheetData = [];
       sheetData.push([`SUMMARY OF ${monthName}`, "", "", "", "", "", ""]);
-
       sheetData.push([
         "DATE", "TOTAL ORDERS", "REMAINING ORDERS", "CANCEL", "RETURN", "INCOME", "RAMAINING INCOME", 
         "", 
         "DESCRIPTION", "AMOUNT", "PERCENTAGE", "DISCREPENCY"
       ]);
-
       let totOrders = 0, totRemOrders = 0, totCancel = 0, totReturn = 0, totIncome = 0, totRemIncome = 0;
-
       monthData.logs.forEach((log) => {
         const remOrd = Math.max(0, log.totalOrders - log.cancelled - log.returned);
         
@@ -1054,13 +1274,11 @@
         totReturn += log.returned;
         totIncome += log.dailyGross;
         totRemIncome += log.remainingIncome;
-
         const dObj = new Date(log.date);
         const dayStr = dObj.getDate();
         const monShort = monthName.substring(0, 3);
         const yrShort = currentYear.substring(2);
         const dateFormatted = `${dayStr}-${monShort}-${yrShort}`;
-
         let row = [
           dateFormatted,
           log.totalOrders || "",
@@ -1070,14 +1288,11 @@
           log.dailyGross ? log.dailyGross : "",
           log.remainingIncome ? log.remainingIncome : 0
         ];
-
         sheetData.push(row);
       });
-
       sheetData.push([
         "TOTAL", totOrders, totRemOrders, totCancel, totReturn, totIncome, totRemIncome
       ]);
-
       const totalSales = totRemIncome;
       const tiktokFees = monthData.tiktokFees || 0;
       const tiktokAdj = monthData.tiktokAdj || 0;
@@ -1086,9 +1301,7 @@
       const liveSeller = monthData.liveSeller || 0;
       const remainingProd = totalSales - totalDeduction - liveSeller;
       const discrepancy = monthData.discrepancy || 0;
-
       const calcPct = val => totalSales > 0 ? (val / totalSales) : 0;
-
       const expenseRows = [
         ["TOTAL SALES", totalSales, calcPct(totalSales), discrepancy],
         ["TIKTOK FEES", tiktokFees, calcPct(tiktokFees), ""],
@@ -1098,36 +1311,53 @@
         ["LIVE SELLER PAYROLL", liveSeller, calcPct(liveSeller), ""],
         ["REMAINING FOR PRODCUTIONS", remainingProd, calcPct(remainingProd), ""]
       ];
-
       expenseRows.forEach((expRow, idx) => {
         let targetRowIdx = idx + 2;
         while (sheetData.length <= targetRowIdx) sheetData.push([]);
         while (sheetData[targetRowIdx].length < 8) sheetData[targetRowIdx].push("");
         sheetData[targetRowIdx].push(...expRow);
       });
-
       const safeParcels = totRemOrders > 0 ? totRemOrders : 1;
       const salesPerParcel = totalSales / safeParcels;
       const tiktokPerParcel = totalDeduction / safeParcels;
       const sellerPerParcel = liveSeller / safeParcels;
       const prodPerParcel = remainingProd / safeParcels;
-
       const parcelHeaderIdx = 10;
       while (sheetData.length <= parcelHeaderIdx + 1) sheetData.push([]);
-
       while (sheetData[parcelHeaderIdx].length < 8) sheetData[parcelHeaderIdx].push("");
       sheetData[parcelHeaderIdx].push("TOTAL ORDERS", "SALES PER PARCELS", "TIKTOK", "LIVE SELLER", "PRODUCTION");
-
       while (sheetData[parcelHeaderIdx + 1].length < 8) sheetData[parcelHeaderIdx + 1].push("");
       sheetData[parcelHeaderIdx + 1].push(totRemOrders, salesPerParcel, tiktokPerParcel, sellerPerParcel, prodPerParcel);
 
-      const ws = XLSX.utils.aoa_to_sheet(sheetData);
+      /* OVERALL PRODUCT RANKING EXCEL EXPORT */
+      sheetData.push([]);
+      sheetData.push([]);
+      sheetData.push(["OVERALL PRODUCT SALES & RANKING"]);
+      sheetData.push(["RANK", "PRODUCT NAME", "OVERALL TOTAL SOLD (PCS)"]);
 
+      const totals = {};
+      defaultProducts.forEach(p => totals[p] = 0);
+      (monthData.productBatches || []).forEach(batch => {
+        for (const [pName, qty] of Object.entries(batch.items)) {
+          if (totals.hasOwnProperty(pName)) {
+            totals[pName] += qty;
+          }
+        }
+      });
+
+      const sorted = Object.keys(totals)
+        .map(name => ({ name, qty: totals[name] }))
+        .sort((a, b) => b.qty - a.qty);
+
+      sorted.forEach((item, index) => {
+        sheetData.push([index + 1, item.name, item.qty]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(sheetData);
       ws['!cols'] = [
         { wch: 12 }, { wch: 14 }, { wch: 18 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 18 },
         { wch: 5 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 16 }, { wch: 14 }
       ];
-
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, `${monthName}_Summary`);
       XLSX.writeFile(wb, `Sales_Summary_${monthName}_${currentYear}.xlsx`);
