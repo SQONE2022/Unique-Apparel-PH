@@ -187,6 +187,7 @@
       color: #fff;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
     /* Table Styling */
@@ -209,6 +210,7 @@
       text-align: left;
       padding: 10px;
       border-bottom: 1px solid var(--border-color);
+      z-index: 2;
     }
     td {
       padding: 8px 10px;
@@ -476,8 +478,10 @@
     <div>
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i>
-          <span id="trackerTitle">DAILY RECORD TRACKER</span>
+          <div>
+            <i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i>
+            <span id="trackerTitle">DAILY RECORD TRACKER</span>
+          </div>
         </div>
         <div class="table-container">
           <table>
@@ -500,8 +504,13 @@
       <!-- PRODUCT SALES INPUT SECTION -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-boxes-packing" style="color: var(--accent-yellow);"></i>
-          PRODUCT SALES INPUT
+          <div>
+            <i class="fa-solid fa-boxes-packing" style="color: var(--accent-yellow);"></i>
+            PRODUCT SALES INPUT
+          </div>
+          <button class="btn-action" style="padding: 4px 10px; font-size: 0.8rem; background: var(--accent-blue); color: #000;" onclick="addNewProductToMonth()">
+            <i class="fa-solid fa-plus"></i> Add New Product
+          </button>
         </div>
 
         <!-- Date Range Controls -->
@@ -524,8 +533,10 @@
           <table>
             <thead>
               <tr>
-                <th style="width: 60%;">Product Name</th>
-                <th style="width: 40%;">Total Sold (Pcs)</th>
+                <th style="width: 40%;">Product Name</th>
+                <th style="width: 25%;">Total Sold (Pcs)</th>
+                <th style="width: 25%;">Price Range</th>
+                <th style="width: 10%; text-align: center;">Phase Out</th>
               </tr>
             </thead>
             <tbody id="productInputTableBody"></tbody>
@@ -536,17 +547,20 @@
       <!-- RECORDED BATCHES HISTORY SECTION -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i>
-          RECORDED BATCHES HISTORY
+          <div>
+            <i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-blue);"></i>
+            RECORDED BATCHES HISTORY
+          </div>
         </div>
         <div class="table-container" style="max-height: 250px;">
           <table>
             <thead>
               <tr>
-                <th style="width: 30%;">Date Range</th>
-                <th style="width: 45%;">Items & Quantities Sold</th>
-                <th style="width: 15%; text-align: center;">Total Sold (Pcs)</th>
-                <th style="width: 10%; text-align: center;">Action</th>
+                <th style="width: 25%;">Date Range</th>
+                <th style="width: 35%;">Items & Quantities Sold</th>
+                <th style="width: 20%; text-align: center;">Price Range</th>
+                <th style="width: 12%; text-align: center;">Total Sold (Pcs)</th>
+                <th style="width: 8%; text-align: center;">Action</th>
               </tr>
             </thead>
             <tbody id="batchHistoryTableBody"></tbody>
@@ -557,8 +571,10 @@
       <!-- OVERALL RANKING & SALES SUMMARY -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-trophy" style="color: var(--accent-yellow);"></i>
-          OVERALL PRODUCT SALES & RANKING
+          <div>
+            <i class="fa-solid fa-trophy" style="color: var(--accent-yellow);"></i>
+            OVERALL PRODUCT SALES & RANKING
+          </div>
         </div>
         <div class="table-container" style="max-height: 360px;">
           <table>
@@ -577,8 +593,10 @@
       <!-- MONTHLY ATTACHMENTS CARD -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-images" style="color: var(--accent-blue);"></i>
-          MONTHLY PROOF & ATTACHMENTS (<span id="imageCount">0</span>/5)
+          <div>
+            <i class="fa-solid fa-images" style="color: var(--accent-blue);"></i>
+            MONTHLY PROOF & ATTACHMENTS (<span id="imageCount">0</span>/5)
+          </div>
         </div>
         <div class="upload-box" onclick="document.getElementById('imageUploadInput').click()">
           <i class="fa-solid fa-cloud-arrow-up" style="font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 5px;"></i>
@@ -593,8 +611,10 @@
     <div>
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i>
-          FINANCIAL BREAKDOWN
+          <div>
+            <i class="fa-solid fa-chart-pie" style="color: var(--accent-purple);"></i>
+            FINANCIAL BREAKDOWN
+          </div>
         </div>
         <table class="summary-table">
           <thead>
@@ -704,8 +724,10 @@
       <!-- Donut Chart Card -->
       <div class="section-card">
         <div class="section-title">
-          <i class="fa-solid fa-chart-donut" style="color: var(--accent-green);"></i>
-          PARCELS
+          <div>
+            <i class="fa-solid fa-chart-donut" style="color: var(--accent-green);"></i>
+            PARCELS
+          </div>
         </div>
         <div class="chart-box">
           <canvas id="parcelsChart"></canvas>
@@ -845,7 +867,8 @@
           adsExpense: 0,
           liveSeller: 0,
           images: [],
-          productBatches: []
+          productBatches: [],
+          products: [...defaultProducts]
         };
       }
       if (!dataStore[year][monthIdx].images) {
@@ -853,6 +876,9 @@
       }
       if (!dataStore[year][monthIdx].productBatches) {
         dataStore[year][monthIdx].productBatches = [];
+      }
+      if (!dataStore[year][monthIdx].products) {
+        dataStore[year][monthIdx].products = [...defaultProducts];
       }
     }
 
@@ -892,19 +918,30 @@
       });
     }
 
-    /* PRODUCT SALES LOGIC */
+    /* PRODUCT SALES LOGIC WITH PRICE RANGE */
     function renderProductInputTable() {
       const tbody = document.getElementById('productInputTableBody');
       tbody.innerHTML = '';
 
-      defaultProducts.forEach((prodName, i) => {
+      const monthProducts = dataStore[currentYear][currentMonthIndex].products;
+
+      monthProducts.forEach((prodName, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>
-            <input type="text" value="${prodName}" class="prod-name-input" data-index="${i}">
+            <input type="text" value="${prodName}" class="prod-name-input" data-index="${i}" onchange="updateProductName(${i}, this.value)">
           </td>
           <td>
             <input type="number" min="0" placeholder="0" class="prod-qty-input" data-index="${i}" onkeydown="handleKeyNavigation(event, this)">
+          </td>
+          <td>
+            <input type="text" placeholder="e.g. 199 - 299" class="prod-price-input" data-index="${i}" onkeydown="handleKeyNavigation(event, this)">
+          </td>
+          <td style="text-align: center;">
+            <button style="background: var(--accent-red); color: #fff; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;" 
+                    onclick="removeProductFromMonth(${i})">
+              <i class="fa-solid fa-trash"></i>
+            </button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -913,6 +950,34 @@
       const mm = String(currentMonthIndex + 1).padStart(2, '0');
       document.getElementById('prodStartDate').value = `${currentYear}-${mm}-01`;
       document.getElementById('prodEndDate').value = `${currentYear}-${mm}-07`;
+    }
+
+    function updateProductName(index, newName) {
+      if (newName.trim() !== "") {
+        dataStore[currentYear][currentMonthIndex].products[index] = newName.trim();
+        autoSaveToLocalStorage();
+      }
+    }
+
+    function addNewProductToMonth() {
+      const prodName = prompt("Enter new product name:");
+      if (prodName && prodName.trim() !== "") {
+        dataStore[currentYear][currentMonthIndex].products.push(prodName.trim());
+        renderProductInputTable();
+        autoSaveToLocalStorage();
+      }
+    }
+
+    function removeProductFromMonth(index) {
+      const monthProducts = dataStore[currentYear][currentMonthIndex].products;
+      const pName = monthProducts[index];
+      
+      if (confirm(`Sigurado ka bang gusto mong i-phase out/alisin ang "${pName}" para sa buwan ng ${months[currentMonthIndex]}? (Hindi mawawala ang records nito sa ibang buwan)`)) {
+        monthProducts.splice(index, 1);
+        renderProductInputTable();
+        renderOverallSummaryTable();
+        autoSaveToLocalStorage();
+      }
     }
 
     function saveProductSalesBatch() {
@@ -926,14 +991,16 @@
 
       const nameInputs = document.querySelectorAll('.prod-name-input');
       const qtyInputs = document.querySelectorAll('.prod-qty-input');
+      const priceInputs = document.querySelectorAll('.prod-price-input');
       const items = {};
       let totalQty = 0;
 
       nameInputs.forEach((input, i) => {
         const name = input.value.trim();
         const qty = parseInt(qtyInputs[i].value) || 0;
+        const priceRange = priceInputs[i] ? priceInputs[i].value.trim() : '';
         if (name) {
-          items[name] = qty;
+          items[name] = { qty, priceRange };
           totalQty += qty;
         }
       });
@@ -947,6 +1014,7 @@
       monthData.productBatches.push({ startDate, endDate, items });
 
       qtyInputs.forEach(i => i.value = '');
+      priceInputs.forEach(i => i.value = '');
 
       renderBatchHistoryTable();
       renderOverallSummaryTable();
@@ -963,17 +1031,24 @@
       const batches = monthData.productBatches || [];
 
       if (batches.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No recorded batches yet for this month.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No recorded batches yet for this month.</td></tr>`;
         return;
       }
 
       batches.forEach((batch, index) => {
         let totalBatchQty = 0;
         let itemsList = [];
+        let priceList = [];
 
-        for (const [pName, qty] of Object.entries(batch.items)) {
-          if (qty > 0 && defaultProducts.includes(pName)) {
+        for (const [pName, itemData] of Object.entries(batch.items)) {
+          const qty = typeof itemData === 'object' ? itemData.qty : itemData;
+          const pRange = typeof itemData === 'object' ? itemData.priceRange : '';
+
+          if (qty > 0) {
             itemsList.push(`${pName} (${qty} pcs)`);
+            if (pRange) {
+              priceList.push(`${pName}: <strong style="color: var(--accent-red);">${pRange}</strong>`);
+            }
             totalBatchQty += qty;
           }
         }
@@ -985,6 +1060,9 @@
           </td>
           <td style="font-size: 0.82rem; color: var(--text-main);">
             ${itemsList.length > 0 ? itemsList.join(', ') : 'No valid items recorded'}
+          </td>
+          <td style="font-size: 0.82rem; text-align: center; color: var(--text-main);">
+            ${priceList.length > 0 ? priceList.join('<br>') : '<span style="color: var(--text-muted);">-</span>'}
           </td>
           <td style="font-weight: bold; text-align: center; color: var(--accent-green);">
             ${totalBatchQty.toLocaleString()} pcs
@@ -1013,13 +1091,16 @@
       const monthData = dataStore[currentYear][currentMonthIndex];
       const totals = {};
 
-      // Filter: Only track exact default products
-      defaultProducts.forEach(p => totals[p] = 0);
+      const monthProducts = monthData.products || defaultProducts;
+      monthProducts.forEach(p => totals[p] = 0);
 
       (monthData.productBatches || []).forEach(batch => {
-        for (const [pName, qty] of Object.entries(batch.items)) {
+        for (const [pName, itemData] of Object.entries(batch.items)) {
+          const qty = typeof itemData === 'object' ? itemData.qty : itemData;
           if (totals.hasOwnProperty(pName)) {
             totals[pName] += qty;
+          } else {
+            totals[pName] = (totals[pName] || 0) + qty;
           }
         }
       });
@@ -1336,12 +1417,12 @@
       sheetData.push(["RANK", "PRODUCT NAME", "OVERALL TOTAL SOLD (PCS)"]);
 
       const totals = {};
-      defaultProducts.forEach(p => totals[p] = 0);
+      const monthProducts = monthData.products || defaultProducts;
+      monthProducts.forEach(p => totals[p] = 0);
       (monthData.productBatches || []).forEach(batch => {
-        for (const [pName, qty] of Object.entries(batch.items)) {
-          if (totals.hasOwnProperty(pName)) {
-            totals[pName] += qty;
-          }
+        for (const [pName, itemData] of Object.entries(batch.items)) {
+          const qty = typeof itemData === 'object' ? itemData.qty : itemData;
+          totals[pName] = (totals[pName] || 0) + qty;
         }
       });
 
